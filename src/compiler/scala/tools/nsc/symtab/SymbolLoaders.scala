@@ -168,6 +168,16 @@ abstract class SymbolLoaders {
     }
   }
 
+  /** Test whether the given file name is a valid class file for these loaders */
+  def validClassFile(name: String): Boolean =
+    name.endsWith(".class")
+
+  /** Binary name corresponding to a valid class file name */
+  def toBinaryName(name: String): String = {
+    assert(name.endsWith(".class"), s"'$name' does not end with '.class'")
+    name.substring(0, name.length - 6)
+  }
+
   /** Create a new loader from a binary classfile.
    *  This is intented as a hook allowing to support loading symbols from
    *  files other than .class files.

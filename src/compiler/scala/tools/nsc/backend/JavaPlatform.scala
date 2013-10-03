@@ -8,6 +8,8 @@ package backend
 
 import io.AbstractFile
 import util.{ClassPath,MergedClassPath,DeltaClassPath}
+import ClassPath.JavaContext
+import scala.reflect.runtime.ReflectionUtils
 import scala.tools.util.PathResolver
 
 trait JavaPlatform extends Platform {
@@ -19,8 +21,20 @@ trait JavaPlatform extends Platform {
   private var currentClassPath: Option[MergedClassPath[AbstractFile]] = None
 
   def classPath: ClassPath[AbstractFile] = {
-    if (currentClassPath.isEmpty) currentClassPath = Some(new PathResolver(settings).result)
+    if (currentClassPath.isEmpty)
+      currentClassPath = Some(new PathResolver(settings, new SymbolLoadersContext).result)
     currentClassPath.get
+  }
+
+  private class SymbolLoadersContext extends JavaContext {
+    override def isValidName(name: String): Boolean =
+      !(settings.YnoLoadImplClass && ReflectionUtils.isTraitImplementation(name))
+
+    override def validClassFile(name: String) =
+      loaders.validClassFile(name) && isValidName(name)
+
+    override def toBinaryName(rep: AbstractFile) =
+      loaders.toBinaryName(rep.name)
   }
 
   /** Update classpath with a substituted subentry */
