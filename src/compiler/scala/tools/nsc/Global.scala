@@ -364,10 +364,17 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     getSourceFile(f)
   }
 
-  lazy val loaders = new {
-    val global: Global.this.type = Global.this
-    val platform: Global.this.platform.type = Global.this.platform
-  } with GlobalSymbolLoaders
+  lazy val loaders: GlobalSymbolLoaders {
+    val global: Global.this.type
+    val platform: Global.this.platform.type
+  } = {
+    val ldrs = new {
+      val global: Global.this.type = Global.this
+      val platform: Global.this.platform.type = Global.this.platform
+    } with GlobalSymbolLoaders
+    computePluginClassLoaderFactories(ldrs.asInstanceOf[loaders.type])
+    ldrs
+  }
 
   /** Returns the mirror that loaded given symbol */
   def mirrorThatLoaded(sym: Symbol): Mirror = rootMirror

@@ -7,7 +7,7 @@
 package scala.tools.nsc
 package plugins
 
-import scala.reflect.io.{ File, Path }
+import scala.reflect.io.{ File, Path, AbstractFile }
 import scala.tools.util.PathResolver.Defaults
 
 /** Support for run-time loading of compiler plugins.
@@ -104,6 +104,17 @@ trait Plugins {
    */
   protected def computePluginPhases(): Unit =
     for (p <- plugins; c <- p.components) addToPhasesSet(c, c.description)
+
+  /** Register class loader factories offered by plugins to symbol loaders */
+  protected def computePluginClassLoaderFactories(
+      loaders: self.loaders.type): Unit = {
+    /* The cast is needed because `plugins` does not retain `global`'s
+     * singleton type
+     */
+    type Factory = AbstractFile => loaders.SymbolLoader
+    for (p <- plugins; (ext, factory) <- p.classLoaderFactories)
+      loaders.registerClassLoaderFactory(ext, factory.asInstanceOf[Factory])
+  }
 
   /** Summary of the options for all loaded plugins */
   def pluginOptionsHelp: String =

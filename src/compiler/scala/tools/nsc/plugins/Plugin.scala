@@ -8,7 +8,7 @@ package plugins
 
 import scala.tools.nsc.io.{ Jar }
 import scala.tools.nsc.util.ScalaClassLoader
-import scala.reflect.io.{ Directory, File, Path }
+import scala.reflect.io.{ Directory, File, Path, AbstractFile }
 import java.io.InputStream
 import java.util.zip.ZipException
 
@@ -73,6 +73,11 @@ abstract class Plugin {
    *  should be listed with the `-P:plugname:` part included.
    */
   val optionsHelp: Option[String] = None
+
+  /** A list of mappings from binary file extension to class loader factory.
+   */
+  def classLoaderFactories: List[(String,
+      AbstractFile => global.loaders.SymbolLoader)] = Nil
 }
 
 /** ...
