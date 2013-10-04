@@ -168,22 +168,42 @@ abstract class SymbolLoaders {
     }
   }
 
+  /** Mapping from file extensions to class loader factories
+   *  By default this contains a unique mapping from ".class" to a
+   *  new ClassfileLoader(bin).
+   */
+  private var classLoaderFactories: List[(String, AbstractFile => SymbolLoader)] =
+    List((".class", bin => new ClassfileLoader(bin)))
+
+  /** Register a class loader factory */
+  def registerClassLoaderFactory(extension: String, factory: AbstractFile => SymbolLoader): Unit =
+    classLoaderFactories = (extension, factory) :: classLoaderFactories
+
   /** Test whether the given file name is a valid class file for these loaders */
-  def validClassFile(name: String): Boolean =
-    name.endsWith(".class")
+  def validClassFile(name: String): Boolean = {
+    classLoaderFactories exists {
+      mapping => name.endsWith(mapping._1)
+    }
+  }
 
   /** Binary name corresponding to a valid class file name */
   def toBinaryName(name: String): String = {
-    assert(name.endsWith(".class"), s"'$name' does not end with '.class'")
-    name.substring(0, name.length - 6)
+    (classLoaderFactories collectFirst {
+      case (ext, _) if name.endsWith(ext) =>
+        name.substring(0, name.length - ext.length)
+    }).get
   }
 
   /** Create a new loader from a binary classfile.
    *  This is intented as a hook allowing to support loading symbols from
    *  files other than .class files.
    */
-  protected def newClassLoader(bin: AbstractFile): SymbolLoader =
-    new ClassfileLoader(bin)
+  protected def newClassLoader(bin: AbstractFile): SymbolLoader = {
+    (classLoaderFactories collectFirst {
+      case (ext, factory) if bin.name.endsWith(ext) =>
+        factory(bin)
+    }).get
+  }
 
   /**
    * A lazy type that completes itself by calling parameter doComplete.
