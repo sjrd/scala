@@ -1145,9 +1145,9 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
      * It turns a chained call like "a".+("b").+("c") into a list of arguments.
      */
     def liftStringConcat(tree: Tree): List[Tree] = tree match {
-      case Apply(fun @ Select(larg, method), rarg) =>
+      case tree @ Apply(fun @ Select(larg, method), rarg) =>
         if (isPrimitive(fun) &&
-            primitives.getPrimitive(fun.symbol) == ScalaPrimitives.CONCAT)
+            primitives.getPrimitive(tree, larg.tpe) == ScalaPrimitives.CONCAT)
           liftStringConcat(larg) ::: rarg
         else
           tree :: Nil
