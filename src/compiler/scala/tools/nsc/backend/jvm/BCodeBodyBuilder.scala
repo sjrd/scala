@@ -392,7 +392,10 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             case _                  => genConstant(value);               generatedType = tpeTK(tree)
           }
 
-        case blck @ Block(_, _) => genBlock(blck, expectedType)
+        case blck @ Block(stats, expr) =>
+          if(stats.isEmpty)
+            genLoad(expr, expectedType)
+          else genBlock(blck, expectedType)
 
         case Typed(Super(_, _), _) => genLoad(This(claszSymbol), expectedType)
 
