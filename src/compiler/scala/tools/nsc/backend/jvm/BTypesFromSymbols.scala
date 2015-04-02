@@ -129,7 +129,8 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
         // We could also search in nestedClassSymbols for s.linkedClassOfClass, but sometimes that
         // returns NoSymbol, so it doesn't work.
         val nb = nestedClassSymbols.count(mc => mc.name == s.name && mc.owner == s.owner)
-        assert(nb == 2, s"Java member module without member class: $s - $nestedClassSymbols")
+        // this assertion is specific to how ScalaC works. It doesn't apply to dotty, as n dotty there will be B & B$
+        // assert(nb == 2, s"Java member module without member class: $s - $nestedClassSymbols")
         false
       } else true
     })

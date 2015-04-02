@@ -210,7 +210,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       val thenKind      = tpeTK(thenp)
       val elseKind      = if (!hasElse) UNIT else tpeTK(elsep)
-      def hasUnitBranch = (thenKind == UNIT || elseKind == UNIT)
+      def hasUnitBranch = (thenKind == UNIT || elseKind == UNIT) && expectedType == UNIT
       val resKind       = if (hasUnitBranch) UNIT else tpeTK(tree)
 
       markProgramPoint(success)
@@ -1249,7 +1249,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       lineNumber(tree)
       tree match {
 
-        case Apply(fun, args) if isPrimitive(fun) =>
+        case tree @ Apply(fun, args) if isPrimitive(fun) =>
           import ScalaPrimitives.{ ZNOT, ZAND, ZOR, EQ }
 
           // lhs and rhs of test
@@ -1267,7 +1267,8 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             genCond(rhs, success, failure)
           }
 
-          primitives.getPrimitive(fun.symbol) match {
+
+          primitives.getPrimitive(tree, lhs.tpe) match {
             case ZNOT   => genCond(lhs, failure, success)
             case ZAND   => genZandOrZor(and = true)
             case ZOR    => genZandOrZor(and = false)
