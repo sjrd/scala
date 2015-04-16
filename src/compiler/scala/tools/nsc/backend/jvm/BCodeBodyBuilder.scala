@@ -320,6 +320,17 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             case t @ Ident(_) => (t, Nil)
           }
 
+          if (!fun.symbol.isStaticMember) {
+            // load receiver of non-static implementation of lambda
+
+            // darkdimius: I haven't found in spec `this` refference should go
+            // but I was able to derrive it by reading
+            // AbstractValidatingLambdaMetafactory.validateMetafactoryArgs
+
+            val Select(prefix, _) = fun
+            genLoad(prefix)
+          }
+
           genLoadArguments(env, fun.symbol.info.paramTypes map toTypeKind)
           genInvokeDynamicLambda(NoSymbol, fun.symbol, env.size, functionalInterface)
 
@@ -1370,14 +1381,22 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
     def genInvokeDynamicLambda(ctor: Symbol, lambdaTarget: Symbol, environmentSize: Int, functionalInterface: Symbol) {
       debuglog(s"Using invokedynamic rather than `new ${ctor.owner}`")
+      val invokeStyle =
+        if (lambdaTarget.isStaticMember) asm.Opcodes.H_INVOKESTATIC
+        else if (lambdaTarget.isPrivate || lambdaTarget.isClassConstructor) asm.Opcodes.H_INVOKESPECIAL
+        else if (lambdaTarget.owner.isInterface) asm.Opcodes.H_INVOKEINTERFACE
+        else asm.Opcodes.H_INVOKEVIRTUAL
+
       val targetHandle =
-        new asm.Handle(asm.Opcodes.H_INVOKESTATIC,
+        new asm.Handle(invokeStyle,
           classBTypeFromSymbol(lambdaTarget.owner).internalName,
           lambdaTarget.name.toString,
           asmMethodType(lambdaTarget).descriptor)
 
       val (a,b) = lambdaTarget.info.paramTypes.splitAt(environmentSize)
-      val (capturedParamsTypes, lambdaParamTypes) = if(int.doLabmdasFollowJVMMetafactoryOrder) (a,b) else (b,a)
+      var (capturedParamsTypes, lambdaParamTypes) = if(int.doLabmdasFollowJVMMetafactoryOrder) (a,b) else (b,a)
+
+      if (invokeStyle != asm.Opcodes.H_INVOKESTATIC) capturedParamsTypes = lambdaTarget.owner.info :: capturedParamsTypes
 
       // Requires https://github.com/scala/scala-java8-compat on the runtime classpath
       val returnUnit = lambdaTarget.info.resultType.typeSymbol == UnitClass
