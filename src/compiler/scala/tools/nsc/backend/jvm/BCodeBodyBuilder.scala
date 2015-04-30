@@ -1404,7 +1404,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       val desc = capturedParamsTypes.map(tpe => toTypeKind(tpe)).mkString(("("), "", ")") + functionalInterfaceDesc
       // TODO specialization
       val constrainedType = new MethodBType(lambdaParamTypes.map(p => toTypeKind(p)), toTypeKind(lambdaTarget.tpe.resultType)).toASMType
-      val abstractMethod = functionalInterface.info.decls.find(_.isDeferred).getOrElse(functionalInterface.info.member(nme_apply))
+      val abstractMethod = functionalInterface.samMethod()
       val methodName = abstractMethod.name.toString
       val applyN = {
         val mt = asmMethodType(abstractMethod)

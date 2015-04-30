@@ -771,6 +771,9 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
         }
       }
     }
+
+    def samMethod: Symbol =
+      sym.info.decls.find(_.isDeferred).getOrElse(sym.info.member(nme_apply))
   }
 
   def log(msg: => String): Unit = global synchronized { global.log(msg) }

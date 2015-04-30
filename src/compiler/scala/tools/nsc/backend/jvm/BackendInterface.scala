@@ -424,7 +424,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def pos: Position
     def exists(pred: Tree => Boolean): Boolean
   }
-  
+
   trait SymbolHelper {
     // names
     def fullName(sep: Char): String
@@ -560,6 +560,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
 
 
     def addRemoteRemoteExceptionAnnotation: Unit
+    def samMethod(): Symbol
   }
 
   trait TypeHelper {
