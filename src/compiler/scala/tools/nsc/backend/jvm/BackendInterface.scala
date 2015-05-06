@@ -11,7 +11,7 @@ import scala.tools.asm
 /* Interface to abstract over frontend inside backend.
  * Intended to be implemented by both scalac and dotc
  */
-trait BackendInterface extends BackendInterfaceDefinitions{
+abstract class BackendInterface extends BackendInterfaceDefinitions {
   type Flags      = Long
 
   type Constant   >: Null <: AnyRef
@@ -222,7 +222,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
   val ClassDef: ClassDefDeconstructor
   val Closure: ClosureDeconstructor
 
-  trait DeconstructorCommon[T >: Null <: AnyRef] {
+  abstract class DeconstructorCommon[T >: Null <: AnyRef] {
     var field: T = null
     def get: this.type = this
     def isEmpty: Boolean = field eq null
@@ -233,7 +233,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     }
   }
 
-  trait Deconstructor1Common[T >: Null <: AnyRef, R]{
+  abstract class Deconstructor1Common[T >: Null <: AnyRef, R]{
     var field: T = _
     def get: R
     def isEmpty: Boolean = field eq null
@@ -244,31 +244,31 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     }
   }
 
-  trait ClassDefDeconstructor extends DeconstructorCommon[ClassDef] {
+  abstract class ClassDefDeconstructor extends DeconstructorCommon[ClassDef] {
     def _1: Modifiers
     def _2: Name
     def _3: List[TypeDef]
     def _4: Template
   }
 
-  trait BindDeconstructor extends DeconstructorCommon[Bind]{
+  abstract class BindDeconstructor extends DeconstructorCommon[Bind]{
     def _1: Name
     def _2: Tree
   }
 
-  trait TemplateDeconstructor extends DeconstructorCommon[Template]{
+  abstract class TemplateDeconstructor extends DeconstructorCommon[Template]{
     def _1: List[Tree]
     def _2: ValDef
     def _3: List[Tree]
   }
 
-  trait ModuleDefDeconstructor extends DeconstructorCommon[ModuleDef]{
+  abstract class ModuleDefDeconstructor extends DeconstructorCommon[ModuleDef]{
     def _1: Modifiers
     def _2: Name
     def _3: Tree
   }
 
-  trait DefDefDeconstructor extends DeconstructorCommon[DefDef]{
+  abstract class DefDefDeconstructor extends DeconstructorCommon[DefDef]{
     def _1: Modifiers
     def _2: Name
     def _3: List[TypeDef]
@@ -277,79 +277,79 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def _6: Tree
   }
 
-  trait ClosureDeconstructor extends DeconstructorCommon[Closure]{
+  abstract class ClosureDeconstructor extends DeconstructorCommon[Closure]{
     def _1: List[Tree] // environment
     def _2: Tree // meth
     def _3: Symbol // functionalInterface
   }
 
-  trait ThisDeconstructor extends Deconstructor1Common[This, Name]{
+  abstract class ThisDeconstructor extends Deconstructor1Common[This, Name]{
     def apply(s: Symbol): Tree
   }
 
-  trait IdentDeconstructor extends Deconstructor1Common[Ident, Name]{
+  abstract class IdentDeconstructor extends Deconstructor1Common[Ident, Name]{
   }
 
-  trait ReturnDeconstructor extends Deconstructor1Common[Return, Tree]{
+  abstract class ReturnDeconstructor extends Deconstructor1Common[Return, Tree]{
   }
 
-  trait ThrownException {
+  abstract class ThrownException {
     def unapply(a: Annotation): Option[Symbol]
   }
 
-    trait ThrowDeconstructor extends Deconstructor1Common[Throw, Tree]{
+  abstract class ThrowDeconstructor extends Deconstructor1Common[Throw, Tree]{
   }
 
-  trait ConstantDeconstructor extends Deconstructor1Common[Constant, Any]{
+  abstract class ConstantDeconstructor extends Deconstructor1Common[Constant, Any]{
   }
 
-  trait NewDeconstructor extends Deconstructor1Common[New, Type]{
+  abstract class NewDeconstructor extends Deconstructor1Common[New, Type]{
   }
 
-  trait AlternativeDeconstructor extends Deconstructor1Common[Alternative, List[Tree]]{
+  abstract class AlternativeDeconstructor extends Deconstructor1Common[Alternative, List[Tree]]{
   }
 
-  trait BlockDeconstructor extends DeconstructorCommon[Block]{
+  abstract class BlockDeconstructor extends DeconstructorCommon[Block]{
     def _1: List[Tree]
     def _2: Tree
   }
 
-  trait CaseDeconstructor extends DeconstructorCommon[CaseDef]{
+  abstract class CaseDeconstructor extends DeconstructorCommon[CaseDef]{
     def _1: Tree
     def _2: Tree
     def _3: Tree
   }
 
-  trait MatchDeconstructor extends DeconstructorCommon[Match]{
+  abstract class MatchDeconstructor extends DeconstructorCommon[Match]{
     def _1: Tree
     def _2: List[Tree]
   }
 
-  trait LiteralDeconstructor extends Deconstructor1Common[Literal, Constant]{
+  abstract class LiteralDeconstructor extends Deconstructor1Common[Literal, Constant]{
   }
 
-  trait AssignDeconstructor extends DeconstructorCommon[Assign]{
+  abstract class AssignDeconstructor extends DeconstructorCommon[Assign]{
     def _1: Tree
     def _2: Tree
   }
 
-  trait SelectDeconstructor extends DeconstructorCommon[Select]{
+  abstract class SelectDeconstructor extends DeconstructorCommon[Select]{
     def _1: Tree
     def _2: Name
   }
 
-  trait ApplyDeconstructor extends DeconstructorCommon[Apply] {
+  abstract class ApplyDeconstructor extends DeconstructorCommon[Apply] {
     def _1: Tree
     def _2: List[Tree]
   }
 
-  trait IfDeconstructor extends DeconstructorCommon[If]{
+  abstract class IfDeconstructor extends DeconstructorCommon[If]{
     def _1: Tree
     def _2: Tree
     def _3: Tree
   }
 
-  trait ValDefDeconstructor extends DeconstructorCommon[ValDef]{
+  abstract class ValDefDeconstructor extends DeconstructorCommon[ValDef]{
     def _1: Modifiers
     def _2: Name
     def _3: Tree
@@ -357,51 +357,51 @@ trait BackendInterface extends BackendInterfaceDefinitions{
   }
 
 
-  trait ApplyDynamicDeconstructor extends DeconstructorCommon[ApplyDynamic]{
+  abstract class ApplyDynamicDeconstructor extends DeconstructorCommon[ApplyDynamic]{
     def _1: Tree
     def _2: List[Tree]
   }
 
 
-  trait TryDeconstructor extends DeconstructorCommon[Try]{
+  abstract class TryDeconstructor extends DeconstructorCommon[Try]{
     def _1: Tree
     def _2: List[Tree]
     def _3: Tree
   }
 
-  trait LabelDeconstructor extends DeconstructorCommon[LabelDef]{
+  abstract class LabelDeconstructor extends DeconstructorCommon[LabelDef]{
     def _1: Name
     def _2: List[Symbol]
     def _3: Tree
   }
 
-  trait TypedDeconstrutor extends DeconstructorCommon[Typed]{
+  abstract class TypedDeconstrutor extends DeconstructorCommon[Typed]{
     def _1: Tree
     def _2: Tree
   }
 
-  trait SuperDeconstructor extends DeconstructorCommon[Super]{
+  abstract class SuperDeconstructor extends DeconstructorCommon[Super]{
     def _1: Tree
     def _2: Name
   }
 
-  trait ArrayValueDeconstructor extends DeconstructorCommon[ArrayValue]{
+  abstract class ArrayValueDeconstructor extends DeconstructorCommon[ArrayValue]{
     def _1: Type
     def _2: List[Tree]
   }
 
-  trait TypeApplyDeconstructor extends DeconstructorCommon[TypeApply]{
+  abstract class TypeApplyDeconstructor extends DeconstructorCommon[TypeApply]{
     def _1: Tree
     def _2: List[Tree]
   }
 
-  trait PositionHelper {
+  abstract class PositionHelper {
     def isDefined: Boolean
     def finalPosition: Position
     def line: Int
   }
 
-  trait ConstantHelper {
+  abstract class ConstantHelper {
     def tag: ConstantTag
     def longValue: Long
     def doubleValue: Double
@@ -417,7 +417,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def symbolValue: Symbol
   }
 
-  trait TreeHelper{
+  abstract class TreeHelper{
     def symbol: Symbol
     def tpe: Type
     def isEmpty: Boolean
@@ -425,7 +425,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def exists(pred: Tree => Boolean): Boolean
   }
 
-  trait SymbolHelper {
+  abstract class SymbolHelper {
     // names
     def fullName(sep: Char): String
     def fullName: String
@@ -563,7 +563,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def samMethod(): Symbol
   }
 
-  trait TypeHelper {
+  abstract class TypeHelper {
     def <:<(other: Type): Boolean
     def =:=(other: Type): Boolean
     def paramTypes: List[Type]
@@ -592,13 +592,13 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def isFinalType: Boolean
   }
 
-  trait Primitives {
+  abstract class Primitives {
     def getPrimitive(app: Apply, reciever: Type): Int
     def isPrimitive(fun: Tree): Boolean
     def getPrimitive(sym: Symbol): Int
   }
 
-  trait NameHelper {
+  abstract class NameHelper {
     def offset: Int
     def index = offset
     def start = offset
@@ -612,7 +612,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
     def startsWith(s: String): Boolean
   }
 
-  trait AnnotationHelper{
+  abstract class AnnotationHelper{
     def atp: Type
     def symbol: Symbol
     def args: List[Tree]
@@ -629,7 +629,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
   val Flag_METHOD: Flags
   val Flag_SYNTHETIC: Flags
 
-  trait Caches {
+  abstract class Caches {
     def recordCache[T <: Clearable](cache: T): T
     def newWeakMap[K, V](): collection.mutable.WeakHashMap[K, V]
     def newMap[K, V](): collection.mutable.HashMap[K, V]
@@ -666,7 +666,7 @@ trait BackendInterface extends BackendInterfaceDefinitions{
   def getAnnotPickle(jclassName: String, sym: Symbol): Option[Annotation]
 }
 
-trait BackendInterfaceDefinitions { self: BackendInterface =>
+abstract class BackendInterfaceDefinitions { self: BackendInterface =>
   val nme_valueOf: Name
 
   /* magic instances */
