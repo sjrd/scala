@@ -863,7 +863,8 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
       def primitiveOrClassToBType(sym: Symbol): BType = {
         assert(sym.isClass, sym)
         assert(sym != ArrayClass || isCompilingArray, sym)
-        primitiveTypeMap.getOrElse(sym, storage.getClassBTypeAndRegisterInnerClass(sym.asInstanceOf[ctx.int.Symbol]))
+        primitiveTypeMap.getOrElse(sym.asInstanceOf[ctx.int.Symbol],
+          storage.getClassBTypeAndRegisterInnerClass(sym.asInstanceOf[ctx.int.Symbol]))
       }
 
       /**

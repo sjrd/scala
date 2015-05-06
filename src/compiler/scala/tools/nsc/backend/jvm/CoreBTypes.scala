@@ -38,7 +38,7 @@ class CoreBTypes[BTFS <: BTypesFromSymbols[_ <: BackendInterface]](val bTypes: B
    * Maps primitive types to their corresponding PrimitiveBType. The map is defined lexically above
    * the first use of `classBTypeFromSymbol` because that method looks at the map.
    */
-  lazy val primitiveTypeMap: Map[BackendInterface#Symbol, PrimitiveBType] = Map(
+  lazy val primitiveTypeMap: Map[Symbol, PrimitiveBType] = Map(
     UnitClass    -> UNIT,
     BooleanClass -> BOOL,
     CharClass    -> CHAR,
@@ -211,7 +211,7 @@ final class CoreBTypesProxy[BTFS <: BTypesFromSymbols[_ <: BackendInterface]](va
     _coreBTypes = coreBTypes.asInstanceOf[CoreBTypes[bTypes.type]]
   }
 
-  def primitiveTypeMap: Map[BackendInterface#Symbol, PrimitiveBType] = _coreBTypes.primitiveTypeMap
+  def primitiveTypeMap: Map[Symbol, PrimitiveBType] = _coreBTypes.primitiveTypeMap
 
   def BOXED_UNIT    : ClassBType = _coreBTypes.BOXED_UNIT
   def BOXED_BOOLEAN : ClassBType = _coreBTypes.BOXED_BOOLEAN
