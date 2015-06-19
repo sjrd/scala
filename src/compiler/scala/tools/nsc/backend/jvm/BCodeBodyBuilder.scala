@@ -639,7 +639,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       var generatedType = expectedType
       lineNumber(app)
       app match {
-        case Apply(_, args) if syntheticArrayConstructors(app.symbol) =>
+        case Apply(_, args) if isSyntheticArrayConstructor(app.symbol) =>
           generatedType = toTypeKind(app.tpe)
           mkArrayConstructorCall(generatedType.asArrayBType, app, args)
         case Apply(t :TypeApply, _) =>

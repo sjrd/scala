@@ -120,7 +120,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   def unboxMethods: Map[Symbol, Symbol]
 
   /* dotty specific, see dotty.runtime.Arrays */
-  def syntheticArrayConstructors: Set[Symbol] = Set.empty
+  def isSyntheticArrayConstructor(s: Symbol) = false
 
   /*
    * Collects all LabelDef nodes enclosed (directly or not) by each node.
