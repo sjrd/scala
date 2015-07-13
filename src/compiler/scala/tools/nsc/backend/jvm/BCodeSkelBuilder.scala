@@ -453,7 +453,13 @@ trait BCodeSkelBuilder extends BCodeHelpers {
       if (!skip) { mnode visitLabel lbl }
     }
     def isAtProgramPoint(lbl: asm.Label): Boolean = {
-      (lastInsn match { case labnode: asm.tree.LabelNode => (labnode.getLabel == lbl); case _ => false } )
+      def getNonLineNumberNode(a: asm.tree.AbstractInsnNode): asm.tree.AbstractInsnNode  = a match {
+        case a: asm.tree.LineNumberNode => getNonLineNumberNode(a.getPrevious) // line numbers aren't part of code itself
+        case _ => a
+      }
+      (getNonLineNumberNode(lastInsn) match {
+        case labnode: asm.tree.LabelNode => (labnode.getLabel == lbl);
+        case _ => false } )
     }
     def lineNumber(tree: Tree) {
       if (!emitLines || !tree.pos.isDefined) return;
