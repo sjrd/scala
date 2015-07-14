@@ -332,7 +332,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
           }
 
           genLoadArguments(env, fun.symbol.info.paramTypes map toTypeKind)
-          genInvokeDynamicLambda(NoSymbol, fun.symbol, env.size, functionalInterface)
+          generatedType = genInvokeDynamicLambda(NoSymbol, fun.symbol, env.size, functionalInterface)
 
         case app @ Apply(_, _) =>
           generatedType = genApply(app, expectedType)
@@ -1379,8 +1379,9 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     def genSynchronized(tree: Apply, expectedType: BType): BType
     def genLoadTry(tree: Try): BType
 
-    def genInvokeDynamicLambda(ctor: Symbol, lambdaTarget: Symbol, environmentSize: Int, functionalInterface: Symbol) {
+    def genInvokeDynamicLambda(ctor: Symbol, lambdaTarget: Symbol, environmentSize: Int, functionalInterface: Symbol): BType = {
       debuglog(s"Using invokedynamic rather than `new ${ctor.owner}`")
+      val generatedType = classBTypeFromSymbol(functionalInterface)
       val invokeStyle =
         if (lambdaTarget.isStaticMember) asm.Opcodes.H_INVOKESTATIC
         else if (lambdaTarget.isPrivate || lambdaTarget.isClassConstructor) asm.Opcodes.H_INVOKESPECIAL
@@ -1400,7 +1401,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       // Requires https://github.com/scala/scala-java8-compat on the runtime classpath
       val returnUnit = lambdaTarget.info.resultType.typeSymbol == UnitClass
-      val functionalInterfaceDesc: String = classBTypeFromSymbol(functionalInterface).descriptor
+      val functionalInterfaceDesc: String = generatedType.descriptor
       val desc = capturedParamsTypes.map(tpe => toTypeKind(tpe)).mkString(("("), "", ")") + functionalInterfaceDesc
       // TODO specialization
       val constrainedType = new MethodBType(lambdaParamTypes.map(p => toTypeKind(p)), toTypeKind(lambdaTarget.tpe.resultType)).toASMType
@@ -1414,6 +1415,8 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         // boostrap args
         applyN, targetHandle, constrainedType
       )
+
+      generatedType
     }
   }
   val lambdaMetaFactoryBootstrapHandle =
