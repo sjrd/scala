@@ -43,7 +43,7 @@ trait BCodeIdiomatic {
     if (emitStackMapFrame) asm.ClassWriter.COMPUTE_FRAMES else 0
   )
 
-  val StringBuilderClassName = "scala/collection/mutable/StringBuilder"
+  lazy val JavaStringBuilderClassName = jlStringBuilderRef.internalName
 
   val CLASS_CONSTRUCTOR_NAME    = "<clinit>"
   val INSTANCE_CONSTRUCTOR_NAME = "<init>"
@@ -210,10 +210,10 @@ trait BCodeIdiomatic {
      * can-multi-thread
      */
     final def genStartConcat: Unit = {
-      jmethod.visitTypeInsn(Opcodes.NEW, StringBuilderClassName)
+      jmethod.visitTypeInsn(Opcodes.NEW, JavaStringBuilderClassName)
       jmethod.visitInsn(Opcodes.DUP)
       invokespecial(
-        StringBuilderClassName,
+        JavaStringBuilderClassName,
         INSTANCE_CONSTRUCTOR_NAME,
         "()V"
       )
@@ -222,22 +222,24 @@ trait BCodeIdiomatic {
     /*
      * can-multi-thread
      */
-    final def genStringConcat(el: BType): Unit = {
+    final def genStringConcat(el: BType, pos: Position): Unit = {
+      val jtype = el match {
+        case ct: ClassBType if ct.isSubtypeOf(StringRef).get          => StringRef
+        case ct: ClassBType if ct.isSubtypeOf(jlStringBufferRef).get  => jlStringBufferRef
+        case ct: ClassBType if ct.isSubtypeOf(jlCharSequenceRef).get  => jlCharSequenceRef
+        case rt: RefBType                                             => ObjectRef
+        case pt: PrimitiveBType                                       => pt  // Currently this ends up being boxed in erasure
+      }
 
-      val jtype =
-        if (el.isArray || el.isClass) ObjectReference
-        else el
-
-      val bt = MethodBType(List(jtype), StringBuilderReference)
-
-      invokevirtual(StringBuilderClassName, "append", bt.descriptor)
+      val bt = MethodBType(List(jtype), jlStringBuilderRef)
+      invokevirtual(JavaStringBuilderClassName, "append", bt.descriptor, pos)
     }
 
     /*
      * can-multi-thread
      */
     final def genEndConcat: Unit = {
-      invokevirtual(StringBuilderClassName, "toString", "()Ljava/lang/String;")
+      invokevirtual(JavaStringBuilderClassName, "toString", "()Ljava/lang/String;", pos)
     }
 
     /*
