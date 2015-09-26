@@ -103,7 +103,7 @@ package object math {
    *  @return the value of the argument rounded to the nearest `Int` value.
    */
   def round(x: Float): Int = java.lang.Math.round(x)
-  
+
   /** Returns the closest `Long` to the argument.
    *
    *  @param  x a floating-point value to be rounded to a `Long`.
@@ -121,10 +121,20 @@ package object math {
   def max(x: Float, y: Float): Float    = java.lang.Math.max(x, y)
   def max(x: Double, y: Double): Double = java.lang.Math.max(x, y)
 
+  def max(x: UInt, y: UInt)(implicit dummy: DummyImplicit): UInt =
+    if (x >= y) x else y
+  def max(x: ULong, y: ULong)(implicit dummy: DummyImplicit): ULong =
+    if (x >= y) x else y
+
   def min(x: Int, y: Int): Int          = java.lang.Math.min(x, y)
   def min(x: Long, y: Long): Long       = java.lang.Math.min(x, y)
   def min(x: Float, y: Float): Float    = java.lang.Math.min(x, y)
   def min(x: Double, y: Double): Double = java.lang.Math.min(x, y)
+
+  def min(x: UInt, y: UInt)(implicit dummy: DummyImplicit): UInt =
+    if (x <= y) x else y
+  def min(x: ULong, y: ULong)(implicit dummy: DummyImplicit): ULong =
+    if (x <= y) x else y
 
   /** Note that these are not pure forwarders to the java versions.
    *  In particular, the return type of java.lang.Long.signum is Int,

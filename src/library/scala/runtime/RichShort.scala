@@ -21,6 +21,9 @@ final class RichShort(val self: Short) extends AnyVal with ScalaWholeNumberProxy
   override def byteValue()   = self.toByte
   override def shortValue()  = self
 
+  def toUByte: UByte = new UByte(self.toByte)
+  def toUShort: UShort = new UShort(self)
+
   override def isValidShort  = true
 
   override def abs: Short              = math.abs(self.toInt).toShort
