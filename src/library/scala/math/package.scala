@@ -198,6 +198,13 @@ package object math {
   def max(x: Double, y: Double): Double = java.lang.Math.max(x, y)
 
   /** @group minmax */
+  def max(x: UInt, y: UInt)(implicit dummy: DummyImplicit): UInt =
+    if (x >= y) x else y
+  /** @group minmax */
+  def max(x: ULong, y: ULong)(implicit dummy: DummyImplicit): ULong =
+    if (x >= y) x else y
+
+  /** @group minmax */
   def min(x: Int, y: Int): Int          = java.lang.Math.min(x, y)
   /** @group minmax */
   def min(x: Long, y: Long): Long       = java.lang.Math.min(x, y)
@@ -205,6 +212,13 @@ package object math {
   def min(x: Float, y: Float): Float    = java.lang.Math.min(x, y)
   /** @group minmax */
   def min(x: Double, y: Double): Double = java.lang.Math.min(x, y)
+
+  /** @group minmax */
+  def min(x: UInt, y: UInt)(implicit dummy: DummyImplicit): UInt =
+    if (x <= y) x else y
+  /** @group minmax */
+  def min(x: ULong, y: ULong)(implicit dummy: DummyImplicit): ULong =
+    if (x <= y) x else y
 
   /** @group signum
     * @note Forwards to [[java.lang.Integer]]

@@ -24,6 +24,10 @@ final class RichInt(val self: Int) extends AnyVal with ScalaNumberProxy[Int] wit
   override def byteValue()   = self.toByte
   override def shortValue()  = self.toShort
 
+  def toUByte: UByte = new UByte(self.toByte)
+  def toUShort: UShort = new UShort(self.toShort)
+  def toUInt: UInt = new UInt(self)
+
   /** Returns `'''true'''` if this number has no decimal component.
     * Always `'''true'''` for `RichInt`.
     */

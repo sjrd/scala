@@ -21,6 +21,8 @@ final class RichByte(val self: Byte) extends AnyVal with ScalaWholeNumberProxy[B
   override def byteValue()   = self
   override def shortValue()  = self.toShort
 
+  def toUByte: UByte = new UByte(self)
+
   override def isValidByte   = true
 
   override def abs: Byte             = math.abs(self).toByte

@@ -20,6 +20,11 @@ final class RichLong(val self: Long) extends AnyVal with IntegralProxy[Long] {
   override def byteValue()   = self.toByte
   override def shortValue()  = self.toShort
 
+  def toUByte: UByte = new UByte(self.toByte)
+  def toUShort: UShort = new UShort(self.toShort)
+  def toUInt: UInt = new UInt(self.toInt)
+  def toULong: ULong = new ULong(self)
+
   override def isValidByte  = self.toByte.toLong == self
   override def isValidShort = self.toShort.toLong == self
   override def isValidChar  = self.toChar.toLong == self
