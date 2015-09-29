@@ -44,7 +44,7 @@ trait BCodeIdiomatic {
     if (emitStackMapFrame) asm.ClassWriter.COMPUTE_FRAMES else 0
   )
 
-  val StringBuilderClassName = "java/lang/StringBuilder"
+  val StringBuilderClassName = "scala/collection/mutable/StringBuilder"
 
   val CLASS_CONSTRUCTOR_NAME    = "<clinit>"
   val INSTANCE_CONSTRUCTOR_NAME = "<init>"
@@ -226,13 +226,9 @@ trait BCodeIdiomatic {
      */
     final def genStringConcat(el: BType) {
 
-      val jtype = el match {
-        case ct: ClassBType if ct.isSubtypeOf(StringReference) => StringReference
-        case ct: ClassBType if ct.isSubtypeOf(JavaStringBufferReference) => JavaStringBufferReference
-        case ct: ClassBType if ct.isSubtypeOf(JavaCharSequenceReference) => JavaCharSequenceReference
-        case rt: RefBType => ObjectReference
-        case pt: PrimitiveBType => pt
-      }
+      val jtype =
+        if (el.isArray || el.isClass) ObjectReference
+        else el
 
       val bt = MethodBType(List(jtype), StringBuilderReference)
 
