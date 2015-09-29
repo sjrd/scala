@@ -535,7 +535,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
         bytecodeName,
         mdesc,
         jgensig,
-        mkArray(thrownExceptions)
+        mkArrayS(thrownExceptions)
       ).asInstanceOf[asm.tree.MethodNode]
 
       // TODO param names: (m.params map (p => javaName(p.sym)))

@@ -55,17 +55,17 @@ trait BCodeIdiomatic {
   val EMPTY_BTYPE_ARRAY    = Array.empty[BType]
 
   /* can-multi-thread */
-  final def mkArray(xs: List[BType]): Array[BType] = {
+  final def mkArrayB(xs: List[BType]): Array[BType] = {
     if (xs.isEmpty) { return EMPTY_BTYPE_ARRAY }
     val a = new Array[BType](xs.size); xs.copyToArray(a); a
   }
   /* can-multi-thread */
-  final def mkArray(xs: List[String]): Array[String] = {
+  final def mkArrayS(xs: List[String]): Array[String] = {
     if (xs.isEmpty) { return EMPTY_STRING_ARRAY }
     val a = new Array[String](xs.size); xs.copyToArray(a); a
   }
   /* can-multi-thread */
-  final def mkArray(xs: List[asm.Label]): Array[asm.Label] = {
+  final def mkArrayL(xs: List[asm.Label]): Array[asm.Label] = {
     if (xs.isEmpty) { return EMPTY_LABEL_ARRAY }
     val a = new Array[asm.Label](xs.size); xs.copyToArray(a); a
   }
@@ -227,9 +227,9 @@ trait BCodeIdiomatic {
     final def genStringConcat(el: BType) {
 
       val jtype = el match {
-        case ct: ClassBType if ct.isSubtypeOf(StringReference).get => StringReference
-        case ct: ClassBType if ct.isSubtypeOf(JavaStringBufferReference).get => JavaStringBufferReference
-        case ct: ClassBType if ct.isSubtypeOf(JavaCharSequenceReference).get => JavaCharSequenceReference
+        case ct: ClassBType if ct.isSubtypeOf(StringReference) => StringReference
+        case ct: ClassBType if ct.isSubtypeOf(JavaStringBufferReference) => JavaStringBufferReference
+        case ct: ClassBType if ct.isSubtypeOf(JavaCharSequenceReference) => JavaCharSequenceReference
         case rt: RefBType => ObjectReference
         case pt: PrimitiveBType => pt
       }

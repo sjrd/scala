@@ -368,7 +368,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
         mirrorMethodName,
         mdesc,
         jgensig,
-        mkArray(thrownExceptions)
+        mkArrayS(thrownExceptions)
       )
 
       emitAnnotations(mirrorMethod, others)

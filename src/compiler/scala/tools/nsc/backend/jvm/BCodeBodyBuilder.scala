@@ -833,7 +833,8 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             abort(s"Invalid pattern in Match node: $tree at: ${tree.pos}")
         }
       }
-      bc.emitSWITCH(mkArrayReverse(flatKeys), mkArray(targets.reverse), default, MIN_SWITCH_DENSITY)
+
+      bc.emitSWITCH(mkArrayReverse(flatKeys), mkArrayL(targets.reverse), default, MIN_SWITCH_DENSITY)
 
       // emit switch-blocks.
       val postMatch = new asm.Label
