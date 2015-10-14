@@ -13,7 +13,8 @@ import java.lang.{Integer => JInteger}
 /** `UInt`, a 32-bit unsigned integer.
  */
 final class UInt private[scala] (private val underlying: Int) extends AnyVal
-    with java.io.Serializable with Comparable[UInt] {
+    with java.io.Serializable with Comparable[UInt]
+    with scala.runtime.UnsignedInteger {
 
   def toByte: Byte = underlying.toByte
   def toShort: Short = underlying.toShort

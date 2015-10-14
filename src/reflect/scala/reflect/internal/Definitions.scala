@@ -1081,6 +1081,7 @@ trait Definitions extends api.StandardDefinitions {
     lazy val BoxesRunTimeClass      = BoxesRunTimeModule.moduleClass
     lazy val BoxedNumberClass       = getClassByName(sn.BoxedNumber)
     lazy val BoxedCharacterClass    = getClassByName(sn.BoxedCharacter)
+    lazy val BoxedUnsignedIntegerClass = getClassByName(sn.BoxedUnsignedInteger)
     lazy val BoxedBooleanClass      = getClassByName(sn.BoxedBoolean)
     lazy val BoxedByteClass         = requiredClass[java.lang.Byte]
     lazy val BoxedShortClass        = requiredClass[java.lang.Short]

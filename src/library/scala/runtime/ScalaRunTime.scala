@@ -203,6 +203,7 @@ object ScalaRunTime {
   def hash(x: Any): Int =
     if (x == null) 0
     else if (x.isInstanceOf[java.lang.Number]) BoxesRunTime.hashFromNumber(x.asInstanceOf[java.lang.Number])
+    else if (x.isInstanceOf[UnsignedInteger]) BoxesRunTime.hashFromUNumber(x.asInstanceOf[UnsignedInteger])
     else x.hashCode
 
   def hash(dv: Double): Int = {
