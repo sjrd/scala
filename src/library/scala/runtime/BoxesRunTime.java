@@ -129,6 +129,8 @@ public final class BoxesRunTime
             return equalsNumObject((java.lang.Number)x, y);
         if (x instanceof java.lang.Character)
             return equalsCharObject((java.lang.Character)x, y);
+        if (x instanceof UnsignedInteger)
+            return equalsUNumObject((UnsignedInteger)x, y);
         if (x == null)
             return y == null;
 
@@ -140,10 +142,25 @@ public final class BoxesRunTime
             return equalsNumNum(xn, (java.lang.Number)y);
         if (y instanceof java.lang.Character)
             return equalsNumChar(xn, (java.lang.Character)y);
+        if (y instanceof UnsignedInteger)
+            return equalsNumUNum(xn, (UnsignedInteger)y);
         if (xn == null)
             return y == null;
 
         return xn.equals(y);
+    }
+
+    public static boolean equalsUNumObject(UnsignedInteger xui, Object y) {
+        if (y instanceof UnsignedInteger)
+            return equalsUNumUNum(xui, (UnsignedInteger)y);
+        if (y instanceof java.lang.Number)
+            return equalsNumUNum((java.lang.Number)y, xui);
+        if (y instanceof java.lang.Character)
+            return equalsUNumChar(xui, (java.lang.Character)y);
+        if (xui == null)
+            return y == null;
+
+        return xui.equals(y);
     }
 
     public static boolean equalsNumNum(java.lang.Number xn, java.lang.Number yn) {
@@ -173,6 +190,8 @@ public final class BoxesRunTime
             return xc.charValue() == ((java.lang.Character)y).charValue();
         if (y instanceof java.lang.Number)
             return equalsNumChar((java.lang.Number)y, xc);
+        if (y instanceof UnsignedInteger)
+            return equalsUNumChar((UnsignedInteger)y, xc);
         if (xc == null)
             return y == null;
 
@@ -196,6 +215,38 @@ public final class BoxesRunTime
         default:
             return xn.equals(yc);
         }
+    }
+
+    public static boolean equalsUNumChar(UnsignedInteger xui, java.lang.Character yc) {
+        if (yc == null)
+            return xui == null;
+        return yc != null && xui.toLong() == (long)yc;
+    }
+
+    public static boolean equalsNumUNum(java.lang.Number xn, UnsignedInteger yui) {
+        if (yui == null)
+            return xn == null;
+
+        switch (typeCode(xn)) {
+        case INT:
+            int xni = xn.intValue();
+            return yui != null && xni >= 0 && (long)xni == yui.toLong();
+        case LONG:
+            long xnl = xn.longValue();
+            return yui != null && xnl >= 0 && xnl == yui.toLong();
+        case FLOAT:
+            return yui != null && xn.floatValue() == yui.toFloat();
+        case DOUBLE:
+            return yui != null && xn.doubleValue() == yui.toDouble();
+        default:
+            return xn.equals(yui);
+        }
+    }
+
+    public static boolean equalsUNumUNum(UnsignedInteger xui, UnsignedInteger yui) {
+        if (xui == null)
+            return yui == null;
+        return yui != null && xui.toLong() == yui.toLong();
     }
 
     private static int unboxCharOrInt(Object arg1, int code) {

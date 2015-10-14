@@ -11,7 +11,8 @@ package scala
 /** `UShort`, a 16-bit unsigned integer.
  */
 final class UShort private[scala] (private val underlying: Short) extends AnyVal
-    with java.io.Serializable with Comparable[UShort] {
+    with java.io.Serializable with Comparable[UShort]
+    with scala.runtime.UnsignedInteger {
 
   def toByte: Byte = underlying.toByte
   def toShort: Short = underlying

@@ -54,6 +54,7 @@ trait JavaPlatform extends Platform {
     (sym == ComparableClass) ||
     (sym isNonBottomSubClass BoxedNumberClass) ||
     (sym isNonBottomSubClass BoxedCharacterClass) ||
+    (sym isNonBottomSubClass BoxedUnsignedIntegerClass) ||
     (sym isNonBottomSubClass BoxedBooleanClass)
   }
 

@@ -1160,6 +1160,7 @@ trait StdNames {
     final val BoxedLong: TypeName          = "java.lang.Long"
     final val BoxedNumber: TypeName        = "java.lang.Number"
     final val BoxedShort: TypeName         = "java.lang.Short"
+    final val BoxedUnsignedInteger: TypeName = "scala.runtime.UnsignedInteger"
     final val IOOBException: TypeName      = "java.lang.IndexOutOfBoundsException"
     final val InvTargetException: TypeName = "java.lang.reflect.InvocationTargetException"
     final val MethodAsObject: TypeName     = "java.lang.reflect.Method"

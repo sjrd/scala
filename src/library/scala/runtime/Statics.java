@@ -3,6 +3,8 @@ package scala.runtime;
 /** Not for public consumption.  Usage by the runtime only.
  */
 
+import scala.runtime.UnsignedInteger;
+
 public final class Statics {
   public static int mix(int hash, int data) {
     int h = mixLast(hash, data);
@@ -71,6 +73,13 @@ public final class Statics {
     return java.lang.Float.hashCode(fv);
   }
 
+  private static int uNumHash(UnsignedInteger n) {
+    long lv = n.toLong();
+    if (lv >= 0 && lv <= java.lang.Integer.MAX_VALUE)
+      return (int)lv;
+    return java.lang.Long.valueOf(lv).hashCode();
+  }
+
   /**
    * Hashcode algorithm is driven by the requirements imposed
    * by primitive equality semantics, namely that equal objects
@@ -111,6 +120,9 @@ public final class Statics {
 
     if (x instanceof java.lang.Float)
       return floatHash(((java.lang.Float)x).floatValue());
+
+    if (x instanceof UnsignedInteger)
+      return uNumHash((UnsignedInteger)x);
 
     return x.hashCode();
   }

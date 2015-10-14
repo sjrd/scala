@@ -11,7 +11,8 @@ package scala
 /** `UByte`, a 8-bit unsigned integer.
  */
 final class UByte private[scala] (private val underlying: Byte) extends AnyVal
-    with java.io.Serializable with Comparable[UByte] {
+    with java.io.Serializable with Comparable[UByte]
+    with scala.runtime.UnsignedInteger {
 
   def toByte: Byte = underlying
   def toShort: Short = toInt.toShort

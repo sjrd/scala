@@ -13,7 +13,8 @@ import java.lang.{Long => JLong}
 /** `ULong`, a 64-bit unsigned integer.
  */
 final class ULong private[scala] (private val underlying: Long) extends AnyVal
-    with java.io.Serializable with Comparable[ULong] {
+    with java.io.Serializable with Comparable[ULong]
+    with scala.runtime.UnsignedInteger {
 
   def toByte: Byte = underlying.toByte
   def toShort: Short = underlying.toShort
