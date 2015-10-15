@@ -174,7 +174,7 @@ final class UInt private[scala] (private val underlying: Int) extends AnyVal
   /** Returns the bitwise XOR of this value and `x`. */
   def ^(x: UShort): UInt = this ^ x.toUInt
   /** Returns the bitwise XOR of this value and `x`. */
-  def ^(x: UInt): UInt = new UInt(underlying & x.underlying)
+  def ^(x: UInt): UInt = new UInt(underlying ^ x.underlying)
   /** Returns the bitwise XOR of this value and `x`. */
   def ^(x: ULong): ULong = this.toULong ^ x
 
