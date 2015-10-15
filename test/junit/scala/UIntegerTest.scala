@@ -30,32 +30,6 @@ class UIntegerTest {
     assertNotEquals((-1).toUInt, Int.MinValue.toUInt)
   }
 
-  @Test def uintEqEq() = {
-    // This tests the primitive == comparison. We cannot use assertEquals.
-
-    assertTrue(5.toUInt == 5.toUInt)
-    assertTrue((-32).toUInt == (-32).toUInt)
-    assertTrue(Int.MinValue.toUInt == Int.MinValue.toUInt)
-
-    assertFalse(5.toUInt == 0.toUInt)
-    assertFalse(0.toUInt == 5.toUInt)
-    assertFalse(5.toUInt == (-32).toUInt)
-    assertFalse((-1).toUInt == Int.MinValue.toUInt)
-  }
-
-  @Test def uintNotEq() = {
-    // This tests the primitive != comparison. We cannot use assertEquals.
-
-    assertFalse(5.toUInt != 5.toUInt)
-    assertFalse((-32).toUInt != (-32).toUInt)
-    assertFalse(Int.MinValue.toUInt != Int.MinValue.toUInt)
-
-    assertTrue(5.toUInt != 0.toUInt)
-    assertTrue(0.toUInt != 5.toUInt)
-    assertTrue(5.toUInt != (-32).toUInt)
-    assertTrue((-1).toUInt != Int.MinValue.toUInt)
-  }
-
   @Test def uintLimitValues() = {
     assertEquals(0.toUInt, UInt.MinValue)
     assertEquals((-1).toUInt, UInt.MaxValue)
@@ -171,5 +145,150 @@ class UIntegerTest {
     assertEquals(0xfffffe56.toUInt, 0x95b61c30.toUInt >> -73072874)
     assertEquals(0x0033d1dd.toUInt, 0x33d1dd8a.toUInt >> 536608584)
     assertEquals(0xfffffffd.toUInt, 0xde416f7b.toUInt >> 993957596)
+  }
+
+  @Test def uintCompareTo() = {
+    assertTrue(0.toUInt.compareTo(0.toUInt) == 0)
+    assertTrue(5.toUInt.compareTo(5.toUInt) == 0)
+    assertTrue((-32).toUInt.compareTo((-32).toUInt) == 0)
+
+    assertTrue(0.toUInt.compareTo(5.toUInt) < 0)
+    assertTrue(Int.MaxValue.toUInt.compareTo(Int.MinValue.toUInt) < 0)
+    assertTrue(54321.toUInt.compareTo((-12345).toUInt) < 0)
+    assertTrue(0.toUInt.compareTo(UInt.MaxValue) < 0)
+
+    assertTrue(5.toUInt.compareTo(0.toUInt) > 0)
+    assertTrue(Int.MinValue.toUInt.compareTo(Int.MaxValue.toUInt) > 0)
+    assertTrue((-12345).toUInt.compareTo(54321.toUInt) > 0)
+    assertTrue(UInt.MaxValue.toUInt.compareTo(0.toUInt) > 0)
+  }
+
+  @Test def uintEqEq() = {
+    // This tests the primitive == comparison. We cannot use assertEquals.
+
+    assertTrue(5.toUInt == 5.toUInt)
+    assertTrue((-32).toUInt == (-32).toUInt)
+    assertTrue(Int.MinValue.toUInt == Int.MinValue.toUInt)
+
+    assertFalse(5.toUInt == 0.toUInt)
+    assertFalse(0.toUInt == 5.toUInt)
+    assertFalse(5.toUInt == (-32).toUInt)
+    assertFalse((-1).toUInt == Int.MinValue.toUInt)
+  }
+
+  @Test def uintNotEq() = {
+    // This tests the primitive != comparison. We cannot use assertEquals.
+
+    assertFalse(5.toUInt != 5.toUInt)
+    assertFalse((-32).toUInt != (-32).toUInt)
+    assertFalse(Int.MinValue.toUInt != Int.MinValue.toUInt)
+
+    assertTrue(5.toUInt != 0.toUInt)
+    assertTrue(0.toUInt != 5.toUInt)
+    assertTrue(5.toUInt != (-32).toUInt)
+    assertTrue((-1).toUInt != Int.MinValue.toUInt)
+  }
+
+  @Test def uintLessThan() = {
+    assertFalse(0.toUInt < 0.toUInt)
+    assertFalse(5.toUInt < 5.toUInt)
+    assertFalse((-32).toUInt < (-32).toUInt)
+
+    assertTrue(0.toUInt < 5.toUInt)
+    assertTrue(Int.MaxValue.toUInt < Int.MinValue.toUInt)
+    assertTrue(54321.toUInt < (-12345).toUInt)
+    assertTrue(0.toUInt < UInt.MaxValue)
+
+    assertFalse(5.toUInt < 0.toUInt)
+    assertFalse(Int.MinValue.toUInt < Int.MaxValue.toUInt)
+    assertFalse((-12345).toUInt < 54321.toUInt)
+    assertFalse(UInt.MaxValue.toUInt < 0.toUInt)
+  }
+
+  @Test def uintLessThanOrEqual() = {
+    assertTrue(0.toUInt <= 0.toUInt)
+    assertTrue(5.toUInt <= 5.toUInt)
+    assertTrue((-32).toUInt <= (-32).toUInt)
+
+    assertTrue(0.toUInt <= 5.toUInt)
+    assertTrue(Int.MaxValue.toUInt <= Int.MinValue.toUInt)
+    assertTrue(54321.toUInt <= (-12345).toUInt)
+    assertTrue(0.toUInt <= UInt.MaxValue)
+
+    assertFalse(5.toUInt <= 0.toUInt)
+    assertFalse(Int.MinValue.toUInt <= Int.MaxValue.toUInt)
+    assertFalse((-12345).toUInt <= 54321.toUInt)
+    assertFalse(UInt.MaxValue.toUInt <= 0.toUInt)
+  }
+
+  @Test def uintGreaterThan() = {
+    assertFalse(0.toUInt > 0.toUInt)
+    assertFalse(5.toUInt > 5.toUInt)
+    assertFalse((-32).toUInt > (-32).toUInt)
+
+    assertFalse(0.toUInt > 5.toUInt)
+    assertFalse(Int.MaxValue.toUInt > Int.MinValue.toUInt)
+    assertFalse(54321.toUInt > (-12345).toUInt)
+    assertFalse(0.toUInt > UInt.MaxValue)
+
+    assertTrue(5.toUInt > 0.toUInt)
+    assertTrue(Int.MinValue.toUInt > Int.MaxValue.toUInt)
+    assertTrue((-12345).toUInt > 54321.toUInt)
+    assertTrue(UInt.MaxValue.toUInt > 0.toUInt)
+  }
+
+  @Test def uintGreaterThanOrEqual() = {
+    assertTrue(0.toUInt >= 0.toUInt)
+    assertTrue(5.toUInt >= 5.toUInt)
+    assertTrue((-32).toUInt >= (-32).toUInt)
+
+    assertFalse(0.toUInt >= 5.toUInt)
+    assertFalse(Int.MaxValue.toUInt >= Int.MinValue.toUInt)
+    assertFalse(54321.toUInt >= (-12345).toUInt)
+    assertFalse(0.toUInt >= UInt.MaxValue)
+
+    assertTrue(5.toUInt >= 0.toUInt)
+    assertTrue(Int.MinValue.toUInt >= Int.MaxValue.toUInt)
+    assertTrue((-12345).toUInt >= 54321.toUInt)
+    assertTrue(UInt.MaxValue.toUInt >= 0.toUInt)
+  }
+
+  @Test def uintBitwiseOr() = {
+    assertEquals(0xefe5d73f.toUInt, 0x4ea54736.toUInt | 0xabe0d22d.toUInt)
+    assertEquals(0xaf7d60fe.toUInt, 0x8b0920ee.toUInt | 0x2d7d40fc.toUInt)
+    assertEquals(0x2b7fde3b.toUInt, 0x233e560b.toUInt | 0x2b65cc39.toUInt)
+    assertEquals(0xdf535edf.toUInt, 0x4513569e.toUInt | 0x9f415acd.toUInt)
+    assertEquals(0xbf7efcff.toUInt, 0xaf7ef8da.toUInt | 0x92601477.toUInt)
+    assertEquals(0xfe8bcadd.toUInt, 0x640ac298.toUInt | 0xfe83ca45.toUInt)
+    assertEquals(0xfeb75e3a.toUInt, 0xbeb64432.toUInt | 0xc6231e2a.toUInt)
+    assertEquals(0xbfdfffbf.toUInt, 0x940fe139.toUInt | 0x3fdcffbf.toUInt)
+    assertEquals(0x89724af5.toUInt, 0x88624ad1.toUInt | 0x81720a35.toUInt)
+    assertEquals(0xdfffcffd.toUInt, 0x412f48bd.toUInt | 0x9fd3cffd.toUInt)
+  }
+
+  @Test def uintBitwiseAnd() = {
+    assertEquals(0x42520814.toUInt, 0x4a528957.toUInt & 0x43db3abc.toUInt)
+    assertEquals(0x10304a11.toUInt, 0x1b34de15.toUInt & 0x10b16a71.toUInt)
+    assertEquals(0x48c0d908.toUInt, 0x79d8d93d.toUInt & 0xcec6fd0a.toUInt)
+    assertEquals(0x15a502b8.toUInt, 0xd7bd02fc.toUInt & 0x1da7efb8.toUInt)
+    assertEquals(0x00200d04.toUInt, 0x60221f04.toUInt & 0x13ac6db4.toUInt)
+    assertEquals(0x8ce00042.toUInt, 0xace2114b.toUInt & 0x8ced6c66.toUInt)
+    assertEquals(0x802d22b1.toUInt, 0x81af27b1.toUInt & 0x986dfaff.toUInt)
+    assertEquals(0x14453408.toUInt, 0x15f5b78c.toUInt & 0x5c453c08.toUInt)
+    assertEquals(0x53112978.toUInt, 0x53796978.toUInt & 0x5b11297e.toUInt)
+    assertEquals(0x628a0846.toUInt, 0x629b0ace.toUInt & 0x628e1866.toUInt)
+  }
+
+  @Test def uintBitwiseXor() = {
+    assertEquals(0x9bcde549.toUInt, 0xb0d69bb6.toUInt ^ 0x2b1b7eff.toUInt)
+    assertEquals(0x7d0438bf.toUInt, 0x808f61b7.toUInt ^ 0xfd8b5908.toUInt)
+    assertEquals(0xc1f1ed8c.toUInt, 0xaee95a24.toUInt ^ 0x6f18b7a8.toUInt)
+    assertEquals(0x4f396a24.toUInt, 0xdebd4cdf.toUInt ^ 0x918426fb.toUInt)
+    assertEquals(0x42f0ee15.toUInt, 0xac9c4749.toUInt ^ 0xee6ca95c.toUInt)
+    assertEquals(0x5eade88f.toUInt, 0x4616405b.toUInt ^ 0x18bba8d4.toUInt)
+    assertEquals(0xc0dd1b52.toUInt, 0x6c086230.toUInt ^ 0xacd57962.toUInt)
+    assertEquals(0x5815a862.toUInt, 0xf764c297.toUInt ^ 0xaf716af5.toUInt)
+    assertEquals(0x66d78b13.toUInt, 0x22fe835b.toUInt ^ 0x44290848.toUInt)
+    assertEquals(0xb05bbc66.toUInt, 0x3e123468.toUInt ^ 0x8e49880e.toUInt)
   }
 }

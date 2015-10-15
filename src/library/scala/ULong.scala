@@ -173,7 +173,7 @@ final class ULong private[scala] (private val underlying: Long) extends AnyVal
   /** * Returns the bitwise XOR of this value and `x`. */
   def ^(x: UInt): ULong = this ^ x.toULong
   /** * Returns the bitwise XOR of this value and `x`. */
-  def ^(x: ULong): ULong = new ULong(underlying & x.underlying)
+  def ^(x: ULong): ULong = new ULong(underlying ^ x.underlying)
 
   /** Returns the sum of this value and `x`. */
   def +(x: UByte): ULong = this + x.toULong
