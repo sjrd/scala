@@ -291,4 +291,153 @@ class UIntegerTest {
     assertEquals(0x66d78b13.toUInt, 0x22fe835b.toUInt ^ 0x44290848.toUInt)
     assertEquals(0xb05bbc66.toUInt, 0x3e123468.toUInt ^ 0x8e49880e.toUInt)
   }
+
+  @Test def uintAdd() = {
+    assertEquals(0x2b99ecfc.toUInt, 0x7f7734f7.toUInt + 0xac22b805.toUInt)
+    assertEquals(0xe8e8dc46.toUInt, 0x43f88660.toUInt + 0xa4f055e6.toUInt)
+    assertEquals(0x6ef04aad.toUInt, 0xc92b5a50.toUInt + 0xa5c4f05d.toUInt)
+    assertEquals(0x94cf09bf.toUInt, 0x2b096f64.toUInt + 0x69c59a5b.toUInt)
+    assertEquals(0xc0ef600f.toUInt, 0x76cb5a86.toUInt + 0x4a240589.toUInt)
+    assertEquals(0x21b18523.toUInt, 0xfc19f87c.toUInt + 0x25978ca7.toUInt)
+    assertEquals(0x44182797.toUInt, 0x9271c281.toUInt + 0xb1a66516.toUInt)
+    assertEquals(0xd3f098ce.toUInt, 0x9fba71ea.toUInt + 0x343626e4.toUInt)
+    assertEquals(0xc469bf2e.toUInt, 0x31499221.toUInt + 0x93202d0d.toUInt)
+    assertEquals(0x4c1bb14e.toUInt, 0xf3f0257d.toUInt + 0x582b8bd1.toUInt)
+  }
+
+  @Test def uintSubtract() = {
+    assertEquals(0xc5411767.toUInt, 0x8d2fa8ba.toUInt - 0xc7ee9153.toUInt)
+    assertEquals(0x87b8d550.toUInt, 0xd9275a26.toUInt - 0x516e84d6.toUInt)
+    assertEquals(0x0a00516d.toUInt, 0x2f9a04bf.toUInt - 0x2599b352.toUInt)
+    assertEquals(0xa6592086.toUInt, 0x47097ccb.toUInt - 0xa0b05c45.toUInt)
+    assertEquals(0xedbcfae3.toUInt, 0x3a86cabc.toUInt - 0x4cc9cfd9.toUInt)
+    assertEquals(0x3514ea79.toUInt, 0xb84c825b.toUInt - 0x833797e2.toUInt)
+    assertEquals(0x4f196049.toUInt, 0x91e04789.toUInt - 0x42c6e740.toUInt)
+    assertEquals(0x2e007f7d.toUInt, 0x704dd722.toUInt - 0x424d57a5.toUInt)
+    assertEquals(0xa05a1dec.toUInt, 0x44e261bc.toUInt - 0xa48843d0.toUInt)
+    assertEquals(0x524112a0.toUInt, 0xc79c6f5d.toUInt - 0x755b5cbd.toUInt)
+  }
+
+  @Test def uintMultiply() = {
+    assertEquals(0xb033cfff.toUInt, 0x9ee12e5f.toUInt * 0x62cb8261.toUInt)
+    assertEquals(0x21edc258.toUInt, 0x22bacd11.toUInt * 0x9b34fcd8.toUInt)
+    assertEquals(0x742cf126.toUInt, 0x30979ce2.toUInt * 0x84010143.toUInt)
+    assertEquals(0xa3ee7077.toUInt, 0xe19b0f17.toUInt * 0xc5e585a1.toUInt)
+    assertEquals(0xfc5d2873.toUInt, 0x9a206e53.toUInt * 0xcd55d961.toUInt)
+    assertEquals(0xfc7a404e.toUInt, 0x33e45d7b.toUInt * 0x1102d48a.toUInt)
+    assertEquals(0xdb925941.toUInt, 0x012aebcb.toUInt * 0x3e01c5a3.toUInt)
+    assertEquals(0xf4965c8d.toUInt, 0x9f324707.toUInt * 0x552b26cb.toUInt)
+    assertEquals(0x8d0e8cdc.toUInt, 0xc220102b.toUInt * 0x69819c94.toUInt)
+    assertEquals(0x2e19d72a.toUInt, 0x4e73e41a.toUInt * 0x604165a9.toUInt)
+  }
+
+  @Test def uintDivide() = {
+    assertEquals(0.toUInt, 5.toUInt / (-1).toUInt)
+    assertEquals(0.toUInt, Int.MinValue.toUInt / (-1).toUInt)
+
+    assertEquals(0x00002525.toUInt, 0x2faba4e0.toUInt / 0x00014883.toUInt)
+    assertEquals(0x00000f00.toUInt, 0x46073b42.toUInt / 0x0004ab26.toUInt)
+    assertEquals(0x00000909.toUInt, 0x80200126.toUInt / 0x000e2e0a.toUInt)
+    assertEquals(0x00000d62.toUInt, 0xb5794be5.toUInt / 0x000d8f15.toUInt)
+    assertEquals(0x00000cc7.toUInt, 0xb179d79d.toUInt / 0x000de398.toUInt)
+    assertEquals(0x00105c0e.toUInt, 0x467ca3eb.toUInt / 0x0000044f.toUInt)
+    assertEquals(0x00000282.toUInt, 0x2106cbe7.toUInt / 0x000d2b02.toUInt)
+    assertEquals(0x00001279.toUInt, 0x99d91f77.toUInt / 0x000853bf.toUInt)
+    assertEquals(0x00000565.toUInt, 0x4691072d.toUInt / 0x000d140c.toUInt)
+    assertEquals(0x000001e4.toUInt, 0x07d8d149.toUInt / 0x000425e8.toUInt)
+  }
+
+  @Test(expected = classOf[ArithmeticException])
+  def uintDivideByZero() = {
+    val _ = 5.toUInt / 0.toUInt
+  }
+
+  @Test def uintRemainder() = {
+    assertEquals(0x7615d.toUInt, 0x00653d9b.toUInt % 0x962d3.toUInt)
+    assertEquals(0x1b3f7.toUInt, 0xa676c753.toUInt % 0x5f252.toUInt)
+    assertEquals(0x39968.toUInt, 0xb7af170d.toUInt % 0xa8571.toUInt)
+    assertEquals(0x493f2.toUInt, 0xa2dd048d.toUInt % 0xc0803.toUInt)
+    assertEquals(0x23239.toUInt, 0xc066ef0a.toUInt % 0x58dfb.toUInt)
+    assertEquals(0x0669e.toUInt, 0x6ee7c405.toUInt % 0x866fd.toUInt)
+    assertEquals(0x62a2e.toUInt, 0x5c471ff0.toUInt % 0xd319f.toUInt)
+    assertEquals(0x37eed.toUInt, 0x50315939.toUInt % 0x450d7.toUInt)
+    assertEquals(0x07dc3.toUInt, 0x0cee4d71.toUInt % 0x1ef81.toUInt)
+    assertEquals(0x01948.toUInt, 0xe28b41a8.toUInt % 0xe453d.toUInt)
+  }
+
+  @Test(expected = classOf[ArithmeticException])
+  def uintRemainderOfDivByZero() = {
+    val _ = 5.toUInt % 0.toUInt
+  }
+
+  @Test def uintMin() = {
+    assertEquals(0.toUInt, 0.toUInt min 0.toUInt)
+    assertEquals(5.toUInt, 5.toUInt min 5.toUInt)
+    assertEquals((-32).toUInt, (-32).toUInt min (-32).toUInt)
+
+    assertEquals(0.toUInt, 0.toUInt min 5.toUInt)
+    assertEquals(Int.MaxValue.toUInt, Int.MaxValue.toUInt min Int.MinValue.toUInt)
+    assertEquals(54321.toUInt, 54321.toUInt min (-12345).toUInt)
+    assertEquals(0.toUInt, 0.toUInt min UInt.MaxValue.toUInt)
+
+    assertEquals(0.toUInt, 5.toUInt min 0.toUInt)
+    assertEquals(Int.MaxValue.toUInt, Int.MinValue.toUInt min Int.MaxValue.toUInt)
+    assertEquals(54321.toUInt, (-12345).toUInt min 54321.toUInt)
+    assertEquals(0.toUInt, UInt.MaxValue.toUInt min 0.toUInt)
+  }
+
+  @Test def uintMax() = {
+    assertEquals(0.toUInt, 0.toUInt max 0.toUInt)
+    assertEquals(5.toUInt, 5.toUInt max 5.toUInt)
+    assertEquals((-32).toUInt, (-32).toUInt max (-32).toUInt)
+
+    assertEquals(5.toUInt, 0.toUInt max 5.toUInt)
+    assertEquals(Int.MinValue.toUInt, Int.MaxValue.toUInt max Int.MinValue.toUInt)
+    assertEquals((-12345).toUInt, 54321.toUInt max (-12345).toUInt)
+    assertEquals(UInt.MaxValue.toUInt, 0.toUInt max UInt.MaxValue.toUInt)
+
+    assertEquals(5.toUInt, 5.toUInt max 0.toUInt)
+    assertEquals(Int.MinValue.toUInt, Int.MinValue.toUInt max Int.MaxValue.toUInt)
+    assertEquals((-12345).toUInt, (-12345).toUInt max 54321.toUInt)
+    assertEquals(UInt.MaxValue.toUInt, UInt.MaxValue.toUInt max 0.toUInt)
+  }
+
+  @Test def uintToBinaryString() = {
+    assertEquals("1111001101101110110001000111101", 0x79b7623d.toUInt.toBinaryString)
+    assertEquals("101111000101000000100101100", 0x5e2812c.toUInt.toBinaryString)
+    assertEquals("10000000111111100011101110100110", 0x80fe3ba6.toUInt.toBinaryString)
+    assertEquals("1001101000110101011000111001110", 0x4d1ab1ce.toUInt.toBinaryString)
+    assertEquals("100001001001110011010100000000", 0x21273500.toUInt.toBinaryString)
+    assertEquals("11001001100010100100000111001011", 0xc98a41cb.toUInt.toBinaryString)
+    assertEquals("10111111101101000111011001110000", 0xbfb47670.toUInt.toBinaryString)
+    assertEquals("1100011011011110110111000011100", 0x636f6e1c.toUInt.toBinaryString)
+    assertEquals("10010111010110110000100010001111", 0x975b088f.toUInt.toBinaryString)
+    assertEquals("1001000000101000100100011001001", 0x481448c9.toUInt.toBinaryString)
+  }
+
+  @Test def uintToHexString() = {
+    assertEquals("fbce2f7f", 0xfbce2f7f.toUInt.toHexString)
+    assertEquals("2ae59524", 0x2ae59524.toUInt.toHexString)
+    assertEquals("e1e25b5d", 0xe1e25b5d.toUInt.toHexString)
+    assertEquals("9f28fdf4", 0x9f28fdf4.toUInt.toHexString)
+    assertEquals("e5525120", 0xe5525120.toUInt.toHexString)
+    assertEquals("38f3400f", 0x38f3400f.toUInt.toHexString)
+    assertEquals("f921ba33", 0xf921ba33.toUInt.toHexString)
+    assertEquals("6245ae0a", 0x6245ae0a.toUInt.toHexString)
+    assertEquals("71e644", 0x71e644.toUInt.toHexString)
+    assertEquals("f829e5dc", 0xf829e5dc.toUInt.toHexString)
+  }
+
+  @Test def uintToOctalString() = {
+    assertEquals("35700705040", 0xef038a20.toUInt.toOctalString)
+    assertEquals("25630737642", 0xae63bfa2.toUInt.toOctalString)
+    assertEquals("26733473624", 0xb76e7794.toUInt.toOctalString)
+    assertEquals("14526772357", 0x655bf4ef.toUInt.toOctalString)
+    assertEquals("7545576655", 0x3d96fdad.toUInt.toOctalString)
+    assertEquals("22770751114", 0x97e3d24c.toUInt.toOctalString)
+    assertEquals("12270122710", 0x52e0a5c8.toUInt.toOctalString)
+    assertEquals("12161000320", 0x51c400d0.toUInt.toOctalString)
+    assertEquals("11543124525", 0x4d8ca955.toUInt.toOctalString)
+    assertEquals("31572225767", 0xcde92bf7.toUInt.toOctalString)
+  }
 }
