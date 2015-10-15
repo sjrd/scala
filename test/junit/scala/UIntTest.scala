@@ -8,7 +8,7 @@ import org.junit.runners.JUnit4
 import scala.tools.testing.AssertUtil._
 
 @RunWith(classOf[JUnit4])
-class UIntegerTest {
+class UIntTest {
 
   @Test def createUIntFromInt() = {
     val x = 5.toUInt
