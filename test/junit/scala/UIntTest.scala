@@ -163,6 +163,24 @@ class UIntTest {
     assertTrue(UInt.MaxValue.toUInt.compareTo(0.toUInt) > 0)
   }
 
+  @Test def uintHasOrdering() = {
+    val ord = implicitly[Ordering[UInt]]
+
+    assertTrue(ord.compare(0.toUInt, 0.toUInt) == 0)
+    assertTrue(ord.compare(5.toUInt, 5.toUInt) == 0)
+    assertTrue(ord.compare((-32).toUInt, (-32).toUInt) == 0)
+
+    assertTrue(ord.compare(0.toUInt, 5.toUInt) < 0)
+    assertTrue(ord.compare(Int.MaxValue.toUInt, Int.MinValue.toUInt) < 0)
+    assertTrue(ord.compare(54321.toUInt, (-12345).toUInt) < 0)
+    assertTrue(ord.compare(0.toUInt, UInt.MaxValue) < 0)
+
+    assertTrue(ord.compare(5.toUInt, 0.toUInt) > 0)
+    assertTrue(ord.compare(Int.MinValue.toUInt, Int.MaxValue.toUInt) > 0)
+    assertTrue(ord.compare((-12345).toUInt, 54321.toUInt) > 0)
+    assertTrue(ord.compare(UInt.MaxValue.toUInt, 0.toUInt) > 0)
+  }
+
   @Test def uintEqEq() = {
     // This tests the primitive == comparison. We cannot use assertEquals.
 
