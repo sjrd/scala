@@ -318,6 +318,26 @@ object Ordering extends LowPriorityOrderingImplicits {
   }
   implicit object Double extends DoubleOrdering
 
+  trait UByteOrdering extends Ordering[UByte] {
+    def compare(x: UByte, y: UByte): Int = x.compareTo(y)
+  }
+  implicit object UByte extends UByteOrdering
+
+  trait UShortOrdering extends Ordering[UShort] {
+    def compare(x: UShort, y: UShort): Int = x.compareTo(y)
+  }
+  implicit object UShort extends UShortOrdering
+
+  trait UIntOrdering extends Ordering[UInt] {
+    def compare(x: UInt, y: UInt): Int = x.compareTo(y)
+  }
+  implicit object UInt extends UIntOrdering
+
+  trait ULongOrdering extends Ordering[ULong] {
+    def compare(x: ULong, y: ULong): Int = x.compareTo(y)
+  }
+  implicit object ULong extends ULongOrdering
+
   trait BigIntOrdering extends Ordering[BigInt] {
     def compare(x: BigInt, y: BigInt) = x.compare(y)
   }
