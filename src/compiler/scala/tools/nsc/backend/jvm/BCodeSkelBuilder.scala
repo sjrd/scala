@@ -167,7 +167,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
 
       } else {
 
-        val skipStaticForwarders = (claszSymbol.isInterface || noForwarders)
+        val skipStaticForwarders = (claszSymbol.isInterface || claszSymbol.isModule || noForwarders)
         if (!skipStaticForwarders) {
           val lmoc = claszSymbol.companionModule
           // add static forwarders if there are no name conflicts; see bugs #363 and #1735
