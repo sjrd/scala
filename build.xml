@@ -85,7 +85,6 @@ TODO:
   <target name="publish-core-opt-nodocs" description="Builds an untested, undocumented optimised core (library/reflect/compiler) and publishes to maven.">
     <antcall target="publish-core">
       <param name="docs.skip" value="1"/>
-      <param name="scalac.args.optimise" value="-optimise"/>
     </antcall>
   </target>
   <target name="publish-core-local-nodocs" description="Builds an untested, undocumented core (library/reflect/compiler) and locally publishes to maven">
