@@ -16,7 +16,7 @@ import scala.reflect.internal.{Flags => IFlags}
  * supports this
  */
 
-class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterface with BackendInterfaceDefinitions{
+class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterface {
   import global._
   import definitions._
 
