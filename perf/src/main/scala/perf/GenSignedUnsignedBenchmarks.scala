@@ -7,103 +7,105 @@ import scala.util.Try
 object GenSignedUnsignedBenchmarks {
   val threshold = 16
 
-  def arg(i: Int) =
-    TermName(s"x$i")
+  sealed trait Op
+  final case class Arg(index: Int) extends Op
+  sealed trait BinOp extends Op { def l: Op; def r: Op }
+  final case class Add(l: Op, r: Op) extends BinOp
+  final case class Sub(l: Op, r: Op) extends BinOp
+  final case class Mul(l: Op, r: Op) extends BinOp
+  final case class Div(l: Op, r: Op) extends BinOp
+  final case class Mod(l: Op, r: Op) extends BinOp
 
-  type Op = (Tree, Tree) => Tree
+  type MkBinOp = (Op, Op) => Op
 
-  val fastOps = List[Op](
-    (x, y) => q"$x + $y",
-    (x, y) => q"$x - $y",
-    (x, y) => q"$x * $y"
-  )
+  val fastOps = List[MkBinOp](Add, Sub, Mul)
+  val allOps = fastOps ++ List[MkBinOp](Div, Mod)
 
-  val allOps = fastOps ++ List[Op](
-    (x, y) => q"$x / $y",
-    (x, y) => q"$x % $y"
-  )
-
-  def eval(t: Tree): Int = t match {
-    case q"$x + $y" => eval(x) + eval(y)
-    case q"$x - $y" => eval(x) - eval(y)
-    case q"$x * $y" => eval(x) * eval(y)
-    case q"$x / $y" => eval(x) / eval(y)
-    case q"$x % $y" => eval(x) % eval(y)
-    case _          => 1
+  def complexity(op: Op): Int = op match {
+    case arg: Arg   => 0
+    case bin: BinOp => complexity(bin.l) + complexity(bin.r) + 1
   }
 
-  def genExpr(ops: List[Op], args: Int): (Int, Tree) =
+  def eval(t: Op): Int = t match {
+    case Arg(i)    => i
+    case Add(l, r) => eval(l) + eval(r)
+    case Sub(l, r) => eval(l) - eval(r)
+    case Mul(l, r) => eval(l) * eval(r)
+    case Div(l, r) => eval(l) / eval(r)
+    case Mod(l, r) => eval(l) % eval(r)
+  }
+
+  def genOp(ops: List[MkBinOp], args: Int): Op =
     if (random > 0.4)
-      (0, q"${arg((random * args).toInt)}")
-    else {
-      val (i, left) = genExpr(ops, args)
-      val (j, right) = genExpr(ops, args)
-      val res = ops((random * ops.size).toInt)(left, right)
+      Arg((random * args).toInt)
+    else
+      ops((random * ops.size).toInt)(genOp(ops, args), genOp(ops, args))
 
-      (i + j + 1, res)
-    }
-
-  def genMethod(ops: List[Op], args: Int, name: TermName) = {
-    def loop(): Tree = {
-      val (complexity, e) = genExpr(ops, args)
-      if (complexity > threshold && Try(eval(e)).isSuccess)
-        e
+  def genNonTrivialOp(ops: List[MkBinOp], args: Int): Op = {
+    def loop(): Op = {
+      val op = genOp(ops, args)
+      if (complexity(op) > threshold && Try(eval(op)).isSuccess)
+        op
       else
         loop()
     }
-    val body = loop()
-
-    q"""
-      @Benchmark
-      def $name = $body
-    """
+    loop()
   }
 
-  def genClasses(args: Int, fastOpsMethods: Int, allOpsMethods: Int) = {
-    val state =
-      (0 to args - 1).map { i =>
-        q"private[this] var ${arg(i)}: Num = toNum(1)"
-      }
-    val fastOpsBenchmarks =
-      (1 to fastOpsMethods).map { i =>
-        val name = TermName(s"fastops$i")
-        genMethod(fastOps, args, name)
-      }
-    val allOpsBenchmarks =
-      (1 to allOpsMethods).map { i =>
-        val name = TermName(s"allops$i")
-        genMethod(allOps, args, name)
-      }
-    val classes =
-      Seq("Byte", "Short", "Int", "Long").map(TypeName(_)).flatMap { signedNum =>
-        val signedBenchName   = TypeName(s"${signedNum}Benchmark")
-        val unsignedNum       = TypeName(s"U$signedNum")
-        val unsignedBenchName = TypeName(s"${unsignedNum}Benchmark")
-        val toSigned          = TermName(s"to$signedNum")
-        val toUnsigned        = TermName(s"to$unsignedNum")
+  def arg(i: Int) =
+    TermName(s"x$i")
 
-        Seq(
-          q"""
-            @State(Scope.Benchmark)
-            class $signedBenchName {
-              type Num = $signedNum
-              def toNum(i: Int): Num = i.$toSigned
-              ..$state
-              ..$fastOpsBenchmarks
-              ..$allOpsBenchmarks
-            }
-          """,
-          q"""
-            @State(Scope.Benchmark)
-            class $unsignedBenchName {
-              type Num = $unsignedNum
-              def toNum(i: Int): Num = i.$toUnsigned
-              ..$state
-              ..$fastOpsBenchmarks
-              ..$allOpsBenchmarks
-            }
-          """
-        )
+  def lift(op: Op, wrap: Tree => Tree): Tree = op match {
+    case Arg(i)    => q"${arg(i)}"
+    case Add(l, r) => wrap(q"${lift(l, wrap)} + ${lift(r, wrap)}")
+    case Sub(l, r) => wrap(q"${lift(l, wrap)} - ${lift(r, wrap)}")
+    case Mul(l, r) => wrap(q"${lift(l, wrap)} * ${lift(r, wrap)}")
+    case Div(l, r) => wrap(q"${lift(l, wrap)} / ${lift(r, wrap)}")
+    case Mod(l, r) => wrap(q"${lift(l, wrap)} % ${lift(r, wrap)}")
+  }
+
+  def genMethod(name: TermName, op: Op, wrap: Tree => Tree) =
+    q"""
+      @Benchmark
+      def $name = ${lift(op, wrap)}
+    """
+
+  def genClasses(args: Int, fastOpsMethods: Int, allOpsMethods: Int) = {
+    val fastOpsSamples =
+      (1 to fastOpsMethods).map { _ => genNonTrivialOp(fastOps, args) }
+    val allOpsSamples =
+      (1 to fastOpsMethods).map { _ => genNonTrivialOp(allOps, args) }
+    val classes =
+      Seq("Byte", "Short", "Int", "Long",
+          "UByte", "UShort", "UInt", "ULong").map(TypeName(_)).map { Num =>
+        val benchName         = TypeName(s"${Num}Benchmark")
+        val toNum             = TermName(s"to$Num")
+        val state =
+          (0 to args - 1).map { i =>
+            q"private[this] var ${arg(i)}: $Num = $i.$toNum"
+          }
+        val wrap =
+          Num.toString match {
+            case "Byte" | "UByte" | "Short" | "UShort" =>
+              (t: Tree) => q"$t.$toNum"
+            case _ =>
+              (t: Tree) => t
+          }
+        val fastOpsMethods = fastOpsSamples.zipWithIndex.map { case (op, i) =>
+          genMethod(TermName(s"fastop$i"), op, wrap)
+        }
+        val allOpsMethods = allOpsSamples.zipWithIndex.map { case (op, i) =>
+          genMethod(TermName(s"allop$i"), op, wrap)
+        }
+
+        q"""
+          @State(Scope.Benchmark)
+          class $benchName {
+            ..$state
+            ..$fastOpsMethods
+            ..$allOpsMethods
+          }
+        """
       }
 
     q"""
