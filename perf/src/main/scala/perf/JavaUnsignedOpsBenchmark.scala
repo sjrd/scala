@@ -3,7 +3,6 @@ package perf
 import java.lang.{Integer => JInteger, Long => JLong}
 import org.openjdk.jmh.annotations.{State, Scope, Benchmark}
 
-/*
 @State(Scope.Benchmark)
 class JavaUnsignedOpsBenchmark {
   private[this] var i1, i2: Int = 1
@@ -33,4 +32,3 @@ class JavaUnsignedOpsBenchmark {
   @Benchmark
   def remainderUnsignedLong = JLong.remainderUnsigned(l1, l2)
 }
-*/
