@@ -435,9 +435,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
     var varsInScope: List[(Symbol, asm.Label)] = null // (local-var-sym -> start-of-scope)
 
     // helpers around program-points.
-    def lastInsn: asm.tree.AbstractInsnNode = {
-      mnode.instructions.getLast
-    }
+    def lastInsn: asm.tree.AbstractInsnNode = mnode.instructions.getLast
     def currProgramPoint(): asm.Label = {
       lastInsn match {
         case labnode: asm.tree.LabelNode => labnode.getLabel
@@ -606,8 +604,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
           genLoad(rhs, returnType)
 
           rhs match {
-            case Block(_, Return(_)) => ()
-            case Return(_) => ()
+            case Return(_) | Block(_, Return(_)) | Throw(_) | Block(_, Throw(_)) => ()
             case EmptyTree =>
               error(NoPosition, "Concrete method has no definition: " + dd + (
                 if (settings_debug) "(found: " + methSymbol.owner.info.decls.toList.mkString(", ") + ")"
