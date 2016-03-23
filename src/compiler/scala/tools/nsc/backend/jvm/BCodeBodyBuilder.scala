@@ -612,7 +612,6 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
 
     private def mkArrayConstructorCall(arr: ArrayBType, app: Apply, args: List[Tree]) = {
-      genLoadArguments(args, paramTKs(app))
       val dims     = arr.dimension
       var elemKind = arr.elementType
       val argsSize = args.length
@@ -626,10 +625,11 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
          */
         for (i <- args.length until dims) elemKind = ArrayBType(elemKind)
       }
+      genLoadArguments(args, List.fill(args.size)(INT))
       (argsSize : @switch) match {
         case 1 => bc newarray elemKind
         case _ =>
-          val descr = ('[' * argsSize) + elemKind.descriptor // denotes the same as: arrayN(elemKind, argsSize).descriptor
+          val descr = ("[" * argsSize) + elemKind.descriptor // denotes the same as: arrayN(elemKind, argsSize).descriptor
           mnode.visitMultiANewArrayInsn(descr, argsSize)
       }
     }
@@ -640,8 +640,10 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       lineNumber(app)
       app match {
         case Apply(_, args) if isSyntheticArrayConstructor(app.symbol) =>
-          generatedType = toTypeKind(app.tpe)
-          mkArrayConstructorCall(generatedType.asArrayBType, app, args)
+          val List(elemClaz, Literal(c: Constant), ArrayValue(_, dims)) = args
+
+          generatedType = toTypeKind(c.typeValue)
+          mkArrayConstructorCall(generatedType.asArrayBType, app, dims)
         case Apply(t :TypeApply, _) =>
 
           generatedType = genTypeApply(t)
