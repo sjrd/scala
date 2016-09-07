@@ -125,77 +125,119 @@ public final class BoxesRunTime
      *  in any case, we dispatch to it as soon as we spot one on either side.
      */
     public static boolean equals2(Object x, Object y) {
-        if (x instanceof java.lang.Number)
-            return equalsNumObject((java.lang.Number)x, y);
-        if (x instanceof java.lang.Character)
-            return equalsCharObject((java.lang.Character)x, y);
         if (x == null)
             return y == null;
+
+        if (x instanceof java.lang.Byte) {
+            if (y instanceof java.lang.Byte)
+                return ((java.lang.Byte)x).byteValue() == ((java.lang.Byte)y).byteValue();
+            return slowEqualsLongObject(x, ((java.lang.Byte)x).longValue(), y);
+        }
+
+        if (x instanceof java.lang.Short) {
+            if (y instanceof java.lang.Short)
+                return ((java.lang.Short)x).shortValue() == ((java.lang.Short)y).shortValue();
+            return slowEqualsLongObject(x, ((java.lang.Short)x).longValue(), y);
+        }
+
+        if (x instanceof java.lang.Integer) {
+            if (y instanceof java.lang.Integer)
+                return ((java.lang.Integer)x).intValue() == ((java.lang.Integer)y).intValue();
+            return slowEqualsLongObject(x, ((java.lang.Integer)x).longValue(), y);
+        }
+
+        if (x instanceof java.lang.Long) {
+            if (y instanceof java.lang.Long)
+                return ((java.lang.Long)x).longValue() == ((java.lang.Long)y).longValue();
+            return slowEqualsLongObject(x, ((java.lang.Long)x).longValue(), y);
+        }
+
+        if (x instanceof java.lang.Float) {
+            if (y instanceof java.lang.Float)
+                return ((java.lang.Float)x).floatValue() == ((java.lang.Float)y).floatValue();
+            return slowEqualsDoubleObject(x, ((java.lang.Float)x).doubleValue(), y);
+        }
+
+        if (x instanceof java.lang.Double) {
+            if (y instanceof java.lang.Double)
+                return ((java.lang.Double)x).doubleValue() == ((java.lang.Double)y).doubleValue();
+            return slowEqualsDoubleObject(x, ((java.lang.Double)x).doubleValue(), y);
+        }
+
+        if (x instanceof java.lang.Character) {
+            if (y instanceof java.lang.Character)
+                return ((java.lang.Character)x).charValue() == ((java.lang.Character)y).charValue();
+            return slowEqualsLongObject(x, (long)((java.lang.Character)x).charValue(), y);
+        }
+
+        if (x instanceof scala.math.ScalaNumber)
+            return x.equals(y);
+        if (y instanceof scala.math.ScalaNumber)
+            return y.equals(x);
 
         return x.equals(y);
     }
 
-    public static boolean equalsNumObject(java.lang.Number xn, Object y) {
-        if (y instanceof java.lang.Number)
-            return equalsNumNum(xn, (java.lang.Number)y);
-        if (y instanceof java.lang.Character)
-            return equalsNumChar(xn, (java.lang.Character)y);
-        if (xn == null)
-            return y == null;
+    // The following specialized variants are probably not useful with the new scheme
 
-        return xn.equals(y);
+    public static boolean equalsNumObject(java.lang.Number xn, Object y) {
+        return equals2(xn, y);
     }
 
     public static boolean equalsNumNum(java.lang.Number xn, java.lang.Number yn) {
-        int xcode = typeCode(xn);
-        int ycode = typeCode(yn);
-        switch (ycode > xcode ? ycode : xcode) {
-        case INT:
-            return xn.intValue() == yn.intValue();
-        case LONG:
-            return xn.longValue() == yn.longValue();
-        case FLOAT:
-            return xn.floatValue() == yn.floatValue();
-        case DOUBLE:
-            return xn.doubleValue() == yn.doubleValue();
-        default:
-            if ((yn instanceof ScalaNumber) && !(xn instanceof ScalaNumber))
-                return yn.equals(xn);
-        }
-        if (xn == null)
-            return yn == null;
-
-        return xn.equals(yn);
+        return equals2(xn, yn);
     }
 
     public static boolean equalsCharObject(java.lang.Character xc, Object y) {
-        if (y instanceof java.lang.Character)
-            return xc.charValue() == ((java.lang.Character)y).charValue();
-        if (y instanceof java.lang.Number)
-            return equalsNumChar((java.lang.Number)y, xc);
-        if (xc == null)
-            return y == null;
-
-        return xc.equals(y);
+        return equals2(xc, y);
     }
 
     public static boolean equalsNumChar(java.lang.Number xn, java.lang.Character yc) {
-        if (yc == null)
-            return xn == null;
+        return equals2(xn, yc);
+    }
 
-        char ch = yc.charValue();
-        switch (typeCode(xn)) {
-        case INT:
-            return xn.intValue() == ch;
-        case LONG:
-            return xn.longValue() == ch;
-        case FLOAT:
-            return xn.floatValue() == ch;
-        case DOUBLE:
-            return xn.doubleValue() == ch;
-        default:
-            return xn.equals(yc);
-        }
+    private static boolean slowEqualsLongObject(Object x, long xn, Object y) {
+        if (y instanceof java.lang.Byte)
+            return ((java.lang.Byte)y).byteValue() == xn;
+        if (y instanceof java.lang.Short)
+            return ((java.lang.Short)y).shortValue() == xn;
+        if (y instanceof java.lang.Integer)
+            return ((java.lang.Integer)y).intValue() == xn;
+        if (y instanceof java.lang.Long)
+            return ((java.lang.Long)y).longValue() == xn;
+        if (y instanceof java.lang.Float)
+            return ((java.lang.Float)y).floatValue() == xn;
+        if (y instanceof java.lang.Double)
+            return ((java.lang.Double)y).doubleValue() == xn;
+        if (y instanceof java.lang.Character)
+            return ((long)((java.lang.Character)y).charValue()) == xn;
+
+        if (y instanceof scala.math.ScalaNumber)
+            return y.equals(x);
+
+        return false;
+    }
+
+    private static boolean slowEqualsDoubleObject(Object x, double xn, Object y) {
+        if (y instanceof java.lang.Byte)
+            return ((java.lang.Byte)y).byteValue() == xn;
+        if (y instanceof java.lang.Short)
+            return ((java.lang.Short)y).shortValue() == xn;
+        if (y instanceof java.lang.Integer)
+            return ((java.lang.Integer)y).intValue() == xn;
+        if (y instanceof java.lang.Long)
+            return ((java.lang.Long)y).longValue() == xn;
+        if (y instanceof java.lang.Float)
+            return ((java.lang.Float)y).floatValue() == xn;
+        if (y instanceof java.lang.Double)
+            return ((java.lang.Double)y).doubleValue() == xn;
+        if (y instanceof java.lang.Character)
+            return ((int)((java.lang.Character)y).charValue()) == xn;
+
+        if (y instanceof scala.math.ScalaNumber)
+            return y.equals(x);
+
+        return false;
     }
 
     private static int unboxCharOrInt(Object arg1, int code) {
