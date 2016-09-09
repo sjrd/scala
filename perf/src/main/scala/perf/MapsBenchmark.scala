@@ -2,11 +2,45 @@ package perf
 
 import org.openjdk.jmh.annotations.{State, Scope, Benchmark}
 
-final class Foo(val x: Int) {
+sealed abstract class Foo
+
+final class Foo1(val x: Int) extends Foo {
   final override def hashCode: Int = x.hashCode
   final override def equals(other: Any) = other match {
-    case other: Foo => this.x == other.x
-    case _          => false
+    case other: Foo1 => this.x == other.x
+    case _           => false
+  }
+}
+
+final class Foo2(val x: Int) extends Foo {
+  final override def hashCode: Int = x.hashCode
+  final override def equals(other: Any) = other match {
+    case other: Foo2 => this.x == other.x
+    case _           => false
+  }
+}
+
+final class Foo3(val x: Int) extends Foo {
+  final override def hashCode: Int = x.hashCode
+  final override def equals(other: Any) = other match {
+    case other: Foo3 => this.x == other.x
+    case _           => false
+  }
+}
+
+final class Foo4(val x: Int) extends Foo {
+  final override def hashCode: Int = x.hashCode
+  final override def equals(other: Any) = other match {
+    case other: Foo4 => this.x == other.x
+    case _           => false
+  }
+}
+
+final class Foo5(val x: Int) extends Foo {
+  final override def hashCode: Int = x.hashCode
+  final override def equals(other: Any) = other match {
+    case other: Foo5 => this.x == other.x
+    case _           => false
   }
 }
 
@@ -19,12 +53,13 @@ class MapsBenchmark {
     Array.fill[Int](TotalSize)(scala.util.Random.nextInt())
 
   private[this] lazy val foosArray =
-    Array.fill[Foo](TotalSize)(new Foo(scala.util.Random.nextInt()))
+    Array.tabulate[Foo](TotalSize)(i => createFoo(i, scala.util.Random.nextInt()))
 
   private[this] lazy val mixedArray =
-    Array.fill[AnyRef](TotalSize)(
-        if (scala.util.Random.nextBoolean()) Integer.valueOf(scala.util.Random.nextInt())
-        else new Foo(scala.util.Random.nextInt()))
+    Array.tabulate[AnyRef](TotalSize) { i =>
+      if (scala.util.Random.nextBoolean()) Integer.valueOf(scala.util.Random.nextInt())
+      else createFoo(i, (scala.util.Random.nextInt()))
+    }
 
   private[this] def fillMap[A](m: scala.collection.mutable.Map[A, Int],
       sourceArray: Array[A]): m.type = {
@@ -32,6 +67,14 @@ class MapsBenchmark {
     for (i <- start until (start + PresentSize))
       m += sourceArray(i) -> i
     m
+  }
+
+  private[this] def createFoo(i: Int, x: Int): Foo = (i % 5) match {
+    case 0 => new Foo1(x)
+    case 1 => new Foo2(x)
+    case 2 => new Foo3(x)
+    case 3 => new Foo4(x)
+    case 4 => new Foo5(x)
   }
 
   private[this] lazy val intsListMap =
@@ -52,7 +95,25 @@ class MapsBenchmark {
   private[this] lazy val mixedHashMap =
     fillMap(new scala.collection.mutable.HashMap[AnyRef, Int], mixedArray)
 
+  lazy val polluteEqEqProfiles: Int = {
+    var value = 0
+    val mixedArray = this.mixedArray
+    var i = 0
+    while (i != mixedArray.length - 1) {
+      var j = 0
+      while (j != mixedArray.length - 1) {
+        if (mixedArray(i) == mixedArray(j))
+          value += 1
+        j += 1
+      }
+      i += 1
+    }
+    value
+  }
+
   @Benchmark def intsListMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != intsArray.length) {
@@ -65,6 +126,8 @@ class MapsBenchmark {
   }
 
   @Benchmark def intsHashMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != intsArray.length) {
@@ -77,6 +140,8 @@ class MapsBenchmark {
   }
 
   @Benchmark def foosListMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != foosArray.length) {
@@ -89,6 +154,8 @@ class MapsBenchmark {
   }
 
   @Benchmark def foosHashMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != foosArray.length) {
@@ -101,6 +168,8 @@ class MapsBenchmark {
   }
 
   @Benchmark def mixedListMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != mixedArray.length) {
@@ -113,6 +182,8 @@ class MapsBenchmark {
   }
 
   @Benchmark def mixedHashMapBench = {
+    polluteEqEqProfiles
+
     var result = 0
     var i = 0
     while (i != mixedArray.length) {
