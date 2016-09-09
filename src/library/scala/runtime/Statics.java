@@ -112,6 +112,16 @@ public final class Statics {
     if (x instanceof java.lang.Float)
       return floatHash(((java.lang.Float)x).floatValue());
 
+    if (x instanceof scala.UByte)
+      return ((scala.UByte)x).underlying() & 0xff;
+
+    if (x instanceof scala.UShort)
+      return ((scala.UShort)x).underlying() & 0xffff;
+
+    /* Amazingly, scala.UInt and scala.ULong do not need a special treatment,
+     * because their generated hashCode() will do the right thing.
+     */
+
     return x.hashCode();
   }
 }
