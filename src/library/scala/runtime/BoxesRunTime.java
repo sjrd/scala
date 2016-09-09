@@ -199,82 +199,131 @@ public final class BoxesRunTime
         return equalsNumObject(xn, yc);
     }
 
-    public static boolean equalsUNumObject(Object x, Object y) {
+    private static boolean equalsUNumObject(Object x, Object y) {
         if (x instanceof scala.UInt) {
             if (y instanceof scala.UInt)
                 return ((scala.UInt)x).underlying() == ((scala.UInt)y).underlying();
-            return slowEqualsUNumObject(x, y);
+            return slowEqualsUNumObject(x, ((scala.UInt)x).underlying() & 0xffffffffL, y);
         }
 
         if (x instanceof scala.ULong) {
             if (y instanceof scala.ULong)
                 return ((scala.ULong)x).underlying() == ((scala.ULong)y).underlying();
-            return slowEqualsUNumObject(x, y);
+            return slowEqualsUNumObject(x, ((scala.ULong)x).underlying(), y);
         }
 
         if (x instanceof scala.UByte) {
             if (y instanceof scala.UByte)
                 return ((scala.UByte)x).underlying() == ((scala.UByte)y).underlying();
-            return slowEqualsUNumObject(x, y);
+            return slowEqualsUNumObject(x, ((scala.UByte)x).underlying() & 0xffL, y);
         }
 
-        if (x instanceof scala.UShort) {
-            if (y instanceof scala.UShort)
-                return ((scala.UShort)x).underlying() == ((scala.UShort)y).underlying();
-            return slowEqualsUNumObject(x, y);
-        }
-
-        if (y instanceof scala.math.ScalaNumber)
-            return y.equals(x);
-
-        return x.equals(y);
+        // assert x instanceof scala.UShort;
+        if (y instanceof scala.UShort)
+            return ((scala.UShort)x).underlying() == ((scala.UShort)y).underlying();
+        return slowEqualsUNumObject(x, ((scala.UShort)x).underlying() & 0xffffL, y);
     }
 
     private static boolean slowEqualsLongObject(Object x, long xn, Object y) {
-        if (y instanceof java.lang.Byte)
-            return ((java.lang.Byte)y).byteValue() == xn;
-        if (y instanceof java.lang.Short)
-            return ((java.lang.Short)y).shortValue() == xn;
-        if (y instanceof java.lang.Integer)
-            return ((java.lang.Integer)y).intValue() == xn;
-        if (y instanceof java.lang.Long)
-            return ((java.lang.Long)y).longValue() == xn;
-        if (y instanceof java.lang.Float)
-            return ((java.lang.Float)y).floatValue() == xn;
-        if (y instanceof java.lang.Double)
-            return ((java.lang.Double)y).doubleValue() == xn;
-        if (y instanceof java.lang.Character)
-            return ((long)((java.lang.Character)y).charValue()) == xn;
+        if (y instanceof java.lang.Number) {
+            if (y instanceof java.lang.Byte)
+                return ((java.lang.Byte)y).byteValue() == xn;
+            if (y instanceof java.lang.Short)
+                return ((java.lang.Short)y).shortValue() == xn;
+            if (y instanceof java.lang.Integer)
+                return ((java.lang.Integer)y).intValue() == xn;
+            if (y instanceof java.lang.Long)
+                return ((java.lang.Long)y).longValue() == xn;
+            if (y instanceof java.lang.Float)
+                return ((java.lang.Float)y).floatValue() == xn;
+            if (y instanceof java.lang.Double)
+                return ((java.lang.Double)y).doubleValue() == xn;
+            if (y instanceof java.lang.Character)
+                return ((long)((java.lang.Character)y).charValue()) == xn;
 
-        if (y instanceof scala.math.ScalaNumber)
-            return y.equals(x);
+            if (y instanceof scala.math.ScalaNumber)
+                return y.equals(x);
+        }
+
+        if (y instanceof scala.UInt)
+            return (((scala.UInt)y).underlying() & 0xffffffffL) == xn;
+        if (y instanceof scala.ULong)
+            return xn >= 0 && ((scala.ULong)y).underlying() == xn;
+        if (y instanceof scala.UByte)
+            return (((scala.UByte)y).underlying() & 0xffL) == xn;
+        if (y instanceof scala.UShort)
+            return (((scala.UShort)y).underlying() & 0xffffL) == xn;
 
         return false;
     }
 
     private static boolean slowEqualsDoubleObject(Object x, double xn, Object y) {
-        if (y instanceof java.lang.Byte)
-            return ((java.lang.Byte)y).byteValue() == xn;
-        if (y instanceof java.lang.Short)
-            return ((java.lang.Short)y).shortValue() == xn;
-        if (y instanceof java.lang.Integer)
-            return ((java.lang.Integer)y).intValue() == xn;
-        if (y instanceof java.lang.Long)
-            return ((java.lang.Long)y).longValue() == xn;
-        if (y instanceof java.lang.Float)
-            return ((java.lang.Float)y).floatValue() == xn;
-        if (y instanceof java.lang.Double)
-            return ((java.lang.Double)y).doubleValue() == xn;
-        if (y instanceof java.lang.Character)
-            return ((int)((java.lang.Character)y).charValue()) == xn;
+        if (y instanceof java.lang.Number) {
+            if (y instanceof java.lang.Byte)
+                return ((java.lang.Byte)y).byteValue() == xn;
+            if (y instanceof java.lang.Short)
+                return ((java.lang.Short)y).shortValue() == xn;
+            if (y instanceof java.lang.Integer)
+                return ((java.lang.Integer)y).intValue() == xn;
+            if (y instanceof java.lang.Long)
+                return ((java.lang.Long)y).longValue() == xn;
+            if (y instanceof java.lang.Float)
+                return ((java.lang.Float)y).floatValue() == xn;
+            if (y instanceof java.lang.Double)
+                return ((java.lang.Double)y).doubleValue() == xn;
+            if (y instanceof java.lang.Character)
+                return ((int)((java.lang.Character)y).charValue()) == xn;
 
-        if (y instanceof scala.math.ScalaNumber)
-            return y.equals(x);
+            if (y instanceof scala.math.ScalaNumber)
+                return y.equals(x);
+        }
+
+        if (y instanceof scala.UInt)
+            return (((scala.UInt)y).underlying() & 0xffffffffL) == xn;
+        if (y instanceof scala.ULong)
+            return ((scala.ULong)y).toDouble() == xn;
+        if (y instanceof scala.UByte)
+            return (((scala.UByte)y).underlying() & 0xffL) == xn;
+        if (y instanceof scala.UShort)
+            return (((scala.UShort)y).underlying() & 0xffffL) == xn;
 
         return false;
     }
 
-    private static boolean slowEqualsUNumObject(Object x, Object y) {
+    private static boolean slowEqualsUNumObject(Object x, long uxn, Object y) {
+        if (y instanceof java.lang.Number) {
+            if (y instanceof scala.math.ScalaNumber)
+                return y.equals(x);
+            if (uxn < 0)
+                return false;
+
+            if (y instanceof java.lang.Byte)
+                return ((java.lang.Byte)y).byteValue() == uxn;
+            if (y instanceof java.lang.Short)
+                return ((java.lang.Short)y).shortValue() == uxn;
+            if (y instanceof java.lang.Integer)
+                return ((java.lang.Integer)y).intValue() == uxn;
+            if (y instanceof java.lang.Long)
+                return ((java.lang.Long)y).longValue() == uxn;
+            if (y instanceof java.lang.Float)
+                return ((java.lang.Float)y).floatValue() == uxn;
+            if (y instanceof java.lang.Double)
+                return ((java.lang.Double)y).doubleValue() == uxn;
+            if (y instanceof java.lang.Character)
+                return ((long)((java.lang.Character)y).charValue()) == uxn;
+
+            return false;
+        }
+
+        if (y instanceof scala.UInt)
+            return (((scala.UInt)y).underlying() & 0xffffffffL) == uxn;
+        if (y instanceof scala.ULong)
+            return ((scala.ULong)y).underlying() == uxn;
+        if (y instanceof scala.UByte)
+            return (((scala.UByte)y).underlying() & 0xffL) == uxn;
+        if (y instanceof scala.UShort)
+            return (((scala.UShort)y).underlying() & 0xffffL) == uxn;
+
         return false;
     }
 
