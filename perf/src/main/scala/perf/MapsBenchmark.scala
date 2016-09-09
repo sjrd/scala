@@ -52,14 +52,21 @@ class MapsBenchmark {
   private[this] lazy val intsArray =
     Array.fill[Int](TotalSize)(scala.util.Random.nextInt())
 
+  private[this] lazy val longsArray =
+    Array.fill[Long](TotalSize)(scala.util.Random.nextLong())
+
   private[this] lazy val foosArray =
     Array.tabulate[Foo](TotalSize)(i => createFoo(i, scala.util.Random.nextInt()))
 
-  private[this] lazy val mixedArray =
+  private[this] lazy val mixedArray = {
     Array.tabulate[AnyRef](TotalSize) { i =>
-      if (scala.util.Random.nextBoolean()) Integer.valueOf(scala.util.Random.nextInt())
-      else createFoo(i, (scala.util.Random.nextInt()))
+      (i % 3) match {
+        case 0 => Integer.valueOf(scala.util.Random.nextInt())
+        case 1 => java.lang.Long.valueOf(scala.util.Random.nextLong())
+        case 2 => createFoo(i, (scala.util.Random.nextInt()))
+      }
     }
+  }
 
   private[this] def fillMap[A](m: scala.collection.mutable.Map[A, Int],
       sourceArray: Array[A]): m.type = {
@@ -82,6 +89,12 @@ class MapsBenchmark {
 
   private[this] lazy val intsHashMap =
     fillMap(new scala.collection.mutable.HashMap[Int, Int], intsArray)
+
+  private[this] lazy val longsListMap =
+    fillMap(new scala.collection.mutable.ListMap[Long, Int], longsArray)
+
+  private[this] lazy val longsHashMap =
+    fillMap(new scala.collection.mutable.HashMap[Long, Int], longsArray)
 
   private[this] lazy val foosListMap =
     fillMap(new scala.collection.mutable.ListMap[Foo, Int], foosArray)
@@ -134,6 +147,34 @@ class MapsBenchmark {
       val elem = intsArray(i)
       if (intsHashMap.contains(elem))
         result ^= intsHashMap(elem)
+      i += 1
+    }
+    result
+  }
+
+  @Benchmark def longsListMapBench = {
+    polluteEqEqProfiles
+
+    var result = 0
+    var i = 0
+    while (i != longsArray.length) {
+      val elem = longsArray(i)
+      if (longsListMap.contains(elem))
+        result ^= longsListMap(elem)
+      i += 1
+    }
+    result
+  }
+
+  @Benchmark def longsHashMapBench = {
+    polluteEqEqProfiles
+
+    var result = 0
+    var i = 0
+    while (i != longsArray.length) {
+      val elem = longsArray(i)
+      if (longsHashMap.contains(elem))
+        result ^= longsHashMap(elem)
       i += 1
     }
     result
