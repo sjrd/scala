@@ -128,40 +128,49 @@ public final class BoxesRunTime
         if (x == null)
             return y == null;
 
-        if (x instanceof java.lang.Byte) {
-            if (y instanceof java.lang.Byte)
-                return ((java.lang.Byte)x).byteValue() == ((java.lang.Byte)y).byteValue();
-            return slowEqualsLongObject(x, ((java.lang.Byte)x).longValue(), y);
-        }
+        if (x instanceof java.lang.Number) {
+            if (x instanceof java.lang.Integer) {
+                if (y instanceof java.lang.Integer)
+                    return ((java.lang.Integer)x).intValue() == ((java.lang.Integer)y).intValue();
+                return slowEqualsLongObject(x, ((java.lang.Integer)x).longValue(), y);
+            }
 
-        if (x instanceof java.lang.Short) {
-            if (y instanceof java.lang.Short)
-                return ((java.lang.Short)x).shortValue() == ((java.lang.Short)y).shortValue();
-            return slowEqualsLongObject(x, ((java.lang.Short)x).longValue(), y);
-        }
+            if (x instanceof java.lang.Double) {
+                if (y instanceof java.lang.Double)
+                    return ((java.lang.Double)x).doubleValue() == ((java.lang.Double)y).doubleValue();
+                return slowEqualsDoubleObject(x, ((java.lang.Double)x).doubleValue(), y);
+            }
 
-        if (x instanceof java.lang.Integer) {
-            if (y instanceof java.lang.Integer)
-                return ((java.lang.Integer)x).intValue() == ((java.lang.Integer)y).intValue();
-            return slowEqualsLongObject(x, ((java.lang.Integer)x).longValue(), y);
-        }
+            if (x instanceof java.lang.Long) {
+                if (y instanceof java.lang.Long)
+                    return ((java.lang.Long)x).longValue() == ((java.lang.Long)y).longValue();
+                return slowEqualsLongObject(x, ((java.lang.Long)x).longValue(), y);
+            }
 
-        if (x instanceof java.lang.Long) {
-            if (y instanceof java.lang.Long)
-                return ((java.lang.Long)x).longValue() == ((java.lang.Long)y).longValue();
-            return slowEqualsLongObject(x, ((java.lang.Long)x).longValue(), y);
-        }
+            if (x instanceof java.lang.Float) {
+                if (y instanceof java.lang.Float)
+                    return ((java.lang.Float)x).floatValue() == ((java.lang.Float)y).floatValue();
+                return slowEqualsDoubleObject(x, ((java.lang.Float)x).doubleValue(), y);
+            }
 
-        if (x instanceof java.lang.Float) {
-            if (y instanceof java.lang.Float)
-                return ((java.lang.Float)x).floatValue() == ((java.lang.Float)y).floatValue();
-            return slowEqualsDoubleObject(x, ((java.lang.Float)x).doubleValue(), y);
-        }
+            if (x instanceof java.lang.Byte) {
+                if (y instanceof java.lang.Byte)
+                    return ((java.lang.Byte)x).byteValue() == ((java.lang.Byte)y).byteValue();
+                return slowEqualsLongObject(x, ((java.lang.Byte)x).longValue(), y);
+            }
 
-        if (x instanceof java.lang.Double) {
-            if (y instanceof java.lang.Double)
-                return ((java.lang.Double)x).doubleValue() == ((java.lang.Double)y).doubleValue();
-            return slowEqualsDoubleObject(x, ((java.lang.Double)x).doubleValue(), y);
+            if (x instanceof java.lang.Short) {
+                if (y instanceof java.lang.Short)
+                    return ((java.lang.Short)x).shortValue() == ((java.lang.Short)y).shortValue();
+                return slowEqualsLongObject(x, ((java.lang.Short)x).longValue(), y);
+            }
+
+            if (x instanceof scala.math.ScalaNumber)
+                return x.equals(y);
+            if (y instanceof scala.math.ScalaNumber)
+                return y.equals(x);
+
+            return x.equals(y);
         }
 
         if (x instanceof java.lang.Character) {
@@ -169,11 +178,6 @@ public final class BoxesRunTime
                 return ((java.lang.Character)x).charValue() == ((java.lang.Character)y).charValue();
             return slowEqualsLongObject(x, (long)((java.lang.Character)x).charValue(), y);
         }
-
-        if (x instanceof scala.math.ScalaNumber)
-            return x.equals(y);
-        if (y instanceof scala.math.ScalaNumber)
-            return y.equals(x);
 
         return x.equals(y);
     }
