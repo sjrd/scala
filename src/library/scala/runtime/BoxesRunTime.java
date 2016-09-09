@@ -129,7 +129,8 @@ public final class BoxesRunTime
             return equalsNumObject((java.lang.Number)x, y);
         if (x instanceof java.lang.Character)
             return equalsCharObject((java.lang.Character)x, y);
-        if (x instanceof scala.runtime.UnsignedInteger)
+        if (x instanceof scala.UInt || x instanceof scala.ULong ||
+            x instanceof scala.UByte || x instanceof scala.UShort)
             return equalsUNumObject(x, y);
         if (y instanceof scala.math.ScalaNumber)
             return y.equals(x);
