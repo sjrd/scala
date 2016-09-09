@@ -132,8 +132,6 @@ public final class BoxesRunTime
         if (x instanceof scala.UInt || x instanceof scala.ULong ||
             x instanceof scala.UByte || x instanceof scala.UShort)
             return equalsUNumObject(x, y);
-        if (y instanceof scala.math.ScalaNumber)
-            return y.equals(x);
 
         if (x == null)
             return y == null;
