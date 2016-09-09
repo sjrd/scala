@@ -129,6 +129,8 @@ public final class BoxesRunTime
             return equalsNumObject((java.lang.Number)x, y);
         if (x instanceof java.lang.Character)
             return equalsCharObject((java.lang.Character)x, y);
+        if (x instanceof scala.runtime.UnsignedInteger)
+            return equalsUNumObject(x, y);
         if (y instanceof scala.math.ScalaNumber)
             return y.equals(x);
 
@@ -198,6 +200,37 @@ public final class BoxesRunTime
         return equalsNumObject(xn, yc);
     }
 
+    public static boolean equalsUNumObject(Object x, Object y) {
+        if (x instanceof scala.UInt) {
+            if (y instanceof scala.UInt)
+                return ((scala.UInt)x).underlying() == ((scala.UInt)y).underlying();
+            return slowEqualsUNumObject(x, y);
+        }
+
+        if (x instanceof scala.ULong) {
+            if (y instanceof scala.ULong)
+                return ((scala.ULong)x).underlying() == ((scala.ULong)y).underlying();
+            return slowEqualsUNumObject(x, y);
+        }
+
+        if (x instanceof scala.UByte) {
+            if (y instanceof scala.UByte)
+                return ((scala.UByte)x).underlying() == ((scala.UByte)y).underlying();
+            return slowEqualsUNumObject(x, y);
+        }
+
+        if (x instanceof scala.UShort) {
+            if (y instanceof scala.UShort)
+                return ((scala.UShort)x).underlying() == ((scala.UShort)y).underlying();
+            return slowEqualsUNumObject(x, y);
+        }
+
+        if (y instanceof scala.math.ScalaNumber)
+            return y.equals(x);
+
+        return x.equals(y);
+    }
+
     private static boolean slowEqualsLongObject(Object x, long xn, Object y) {
         if (y instanceof java.lang.Byte)
             return ((java.lang.Byte)y).byteValue() == xn;
@@ -239,6 +272,10 @@ public final class BoxesRunTime
         if (y instanceof scala.math.ScalaNumber)
             return y.equals(x);
 
+        return false;
+    }
+
+    private static boolean slowEqualsUNumObject(Object x, Object y) {
         return false;
     }
 
