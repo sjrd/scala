@@ -163,7 +163,7 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
         } else {
           val outerName = innerClassSym.rawowner.javaBinaryName
           // Java compatibility. See the big comment in BTypes that summarizes the InnerClass spec.
-          val outerNameModule = if (innerClassSym.isTopLevelModuleClass) outerName.dropModule
+          val outerNameModule = if (innerClassSym.rawowner.isTopLevelModuleClass) outerName.dropModule
           else outerName
           Some(outerNameModule.toString)
         }
