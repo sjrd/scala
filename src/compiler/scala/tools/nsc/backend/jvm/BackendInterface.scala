@@ -3,7 +3,6 @@ package scala.tools.nsc.backend.jvm
 import scala.collection.generic.Clearable
 import scala.reflect.ClassTag
 import scala.reflect.io.AbstractFile
-import scala.tools.nsc.Global
 import scala.language.implicitConversions
 import scala.tools.asm
 

@@ -10,9 +10,8 @@ package backend.jvm
 import scala.tools.asm
 import scala.annotation.switch
 import scala.collection.mutable
-import scala.tools.nsc.backend.ScalaPrimitives
-import scala.tools.nsc.backend.icode.Primitives
-import scala.tools.nsc.backend.icode.Primitives.{NE, EQ, TestOp, ArithmeticOp}
+import scala.tools.nsc.backend.ScalaPrimitivesOps
+import Primitives.{NE, EQ, TestOp, ArithmeticOp}
 
 /*
  *  A high-level facade to the ASM API for bytecode generation.
@@ -39,7 +38,7 @@ trait BCodeIdiomatic {
   lazy val majorVersion: Int = (classfileVersion & 0xFF)
   lazy val emitStackMapFrame = (majorVersion >= 50)
 
-  val extraProc: Int = GenBCode.mkFlags(
+  val extraProc: Int = GenBCodeOps.mkFlags(
     asm.ClassWriter.COMPUTE_MAXS,
     if (emitStackMapFrame) asm.ClassWriter.COMPUTE_FRAMES else 0
   )
@@ -114,7 +113,7 @@ trait BCodeIdiomatic {
     def jmethod: asm.MethodVisitor
 
     import asm.Opcodes;
-    import backend.icode.Opcodes._
+    import backend.jvm.Opcodes._
 
     final def emit(opc: Int) { jmethod.visitInsn(opc) }
 
@@ -155,7 +154,7 @@ trait BCodeIdiomatic {
      */
     final def genPrimitiveLogical(op: /* LogicalOp */ Int, kind: BType) {
 
-      import ScalaPrimitives.{ AND, OR, XOR }
+      import ScalaPrimitivesOps.{ AND, OR, XOR }
 
       ((op, kind): @unchecked) match {
         case (AND, LONG) => emit(Opcodes.LAND)
@@ -184,7 +183,7 @@ trait BCodeIdiomatic {
      */
     final def genPrimitiveShift(op: /* ShiftOp */ Int, kind: BType) {
 
-      import ScalaPrimitives.{ LSL, ASR, LSR }
+      import ScalaPrimitivesOps.{ LSL, ASR, LSR }
 
       ((op, kind): @unchecked) match {
         case (LSL, LONG) => emit(Opcodes.LSHL)
@@ -617,12 +616,12 @@ trait BCodeIdiomatic {
   // ---------------- adapted from scalaPrimitives ----------------
 
   /* Given `code` reports the src TypeKind of the coercion indicated by `code`.
-   * To find the dst TypeKind, `ScalaPrimitives.generatedKind(code)` can be used.
+   * To find the dst TypeKind, `ScalaPrimitivesOps.generatedKind(code)` can be used.
    *
    * can-multi-thread
    */
   final def coercionFrom(code: Int): BType = {
-    import ScalaPrimitives._
+    import ScalaPrimitivesOps._
     (code: @switch) match {
       case B2B | B2C | B2S | B2I | B2L | B2F | B2D => BYTE
       case S2B | S2S | S2C | S2I | S2L | S2F | S2D => SHORT
@@ -639,7 +638,7 @@ trait BCodeIdiomatic {
    * can-multi-thread
    */
   final def coercionTo(code: Int): BType = {
-    import ScalaPrimitives._
+    import ScalaPrimitivesOps._
     (code: @switch) match {
       case B2B | C2B | S2B | I2B | L2B | F2B | D2B => BYTE
       case B2C | C2C | S2C | I2C | L2C | F2C | D2C => CHAR

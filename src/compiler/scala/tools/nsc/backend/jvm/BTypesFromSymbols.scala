@@ -212,7 +212,7 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
     // illegal combination of modifiers at the bytecode level so
     // suppress final if abstract if present.
     import asm.Opcodes._
-    GenBCode.mkFlags(
+    GenBCodeOps.mkFlags(
       if (privateFlag) ACC_PRIVATE else ACC_PUBLIC,
       if (sym.isDeferred || sym.hasAbstractFlag) ACC_ABSTRACT else 0,
       if (sym.isInterface) ACC_INTERFACE else 0,
@@ -229,7 +229,7 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
   }
 
   def javaFieldFlags(sym: Symbol) = {
-    javaFlags(sym) | GenBCode.mkFlags(
+    javaFlags(sym) | GenBCodeOps.mkFlags(
       if (sym hasAnnotation TransientAttr) asm.Opcodes.ACC_TRANSIENT else 0,
       if (sym hasAnnotation VolatileAttr)  asm.Opcodes.ACC_VOLATILE  else 0,
       if (sym.isMutable) 0 else asm.Opcodes.ACC_FINAL

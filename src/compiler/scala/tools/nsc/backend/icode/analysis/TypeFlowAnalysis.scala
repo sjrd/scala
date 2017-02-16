@@ -20,8 +20,8 @@ abstract class TypeFlowAnalysis {
   val global: Global
   import global._
   import definitions.{ ObjectClass, NothingClass, AnyRefClass, StringClass, ThrowableClass }
-  import Primitives._
-  import scala.tools.nsc.backend.icode.Opcodes._
+  import scala.tools.nsc.backend.jvm.Primitives._
+  import scala.tools.nsc.backend.jvm.Opcodes._
 
   /** The lattice of ICode types.
    */

@@ -21,8 +21,8 @@ abstract class CopyPropagation {
   val global: Global
   import global._
   import icodes._
-  import Primitives._
-  import scala.tools.nsc.backend.icode.Opcodes._
+  import scala.tools.nsc.backend.jvm.Primitives._
+  import scala.tools.nsc.backend.jvm.Opcodes._
 
   /** Locations can be local variables, this, and fields. */
   abstract sealed class Location

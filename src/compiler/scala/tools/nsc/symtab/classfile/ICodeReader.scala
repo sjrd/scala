@@ -24,8 +24,8 @@ abstract class ICodeReader extends ClassfileParser {
   val loaders: global.loaders.type
   import global._
   import icodes._
-  import scala.tools.nsc.backend.icode.Primitives._
-  import scala.tools.nsc.backend.icode.Opcodes._
+  import scala.tools.nsc.backend.jvm.Primitives._
+  import scala.tools.nsc.backend.jvm.Opcodes._
 
   var instanceCode: IClass = null          // the ICode class for the current symbol
   var staticCode:   IClass = null          // the ICode class static members
