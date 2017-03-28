@@ -27,7 +27,7 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
   import bCodeAsmCommon._
 
   // Why the proxy, see documentation of class [[CoreBTypes]].
-  val coreBTypes = new CoreBTypesProxy[this.type](this)
+  val coreBTypes: CoreBTypesProxy[this.type] = new CoreBTypesProxy[this.type](this)
   import coreBTypes._
 
   final def intializeCoreBTypes(): Unit = {
