@@ -32,7 +32,8 @@ abstract class BTypes {
    * Concurrent because stack map frames are computed when in the class writer, which might run
    * on multiple classes concurrently.
    */
-  protected val classBTypeFromInternalNameMap: collection.concurrent.Map[String, ClassBType]
+  protected def classBTypeFromInternalNameMap: collection.concurrent.Map[String, ClassBType]
+    // NOTE: Should be a lazy val but scalac does not allow abstract lazy vals (dotty does)
 
   /**
    * The string represented by the `offset` / `length` values of a ClassBType, see comment of that
