@@ -58,7 +58,7 @@ trait BytecodeWriters {
 
     val writer = new Jar(jfile).jarWriter(jarMainAttrs: _*)
 
-    def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile) {
+    def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile): Unit = {
       assert(outfile == null,
              "The outfile formal param is there just because ClassBytecodeWriter overrides this method and uses it.")
       val path = jclassName + ".class"
@@ -85,7 +85,7 @@ trait BytecodeWriters {
 
     private val baseDir = Directory(int.emitAsmp.get).createDirectory()
 
-    private def emitAsmp(jclassBytes: Array[Byte], asmpFile: io.File) {
+    private def emitAsmp(jclassBytes: Array[Byte], asmpFile: io.File): Unit = {
       val pw = asmpFile.printWriter()
       try {
         val cnode = new asm.tree.ClassNode()
@@ -98,7 +98,7 @@ trait BytecodeWriters {
       finally pw.close()
     }
 
-    abstract override def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile) {
+    abstract override def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile): Unit = {
       super.writeClass(label, jclassName, jclassBytes, outfile)
 
       val segments = jclassName.split("[./]")
@@ -110,7 +110,7 @@ trait BytecodeWriters {
   }
 
   trait ClassBytecodeWriter extends BytecodeWriter {
-    def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile) {
+    def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile): Unit = {
       assert(outfile != null,
              "Precisely this override requires its invoker to hand out a non-null AbstractFile.")
       val outstream = new DataOutputStream(outfile.bufferedOutput)
@@ -124,7 +124,7 @@ trait BytecodeWriters {
   trait DumpBytecodeWriter extends BytecodeWriter {
     val baseDir = Directory(int.dumpClasses.get).createDirectory()
 
-    abstract override def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile) {
+    abstract override def writeClass(label: String, jclassName: String, jclassBytes: Array[Byte], outfile: AbstractFile): Unit = {
       super.writeClass(label, jclassName, jclassBytes, outfile)
 
       val pathName = jclassName
