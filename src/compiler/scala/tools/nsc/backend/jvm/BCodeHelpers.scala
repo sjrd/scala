@@ -350,7 +350,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
        */
       // TODO: evaluate the other flags we might be dropping on the floor here.
       // TODO: ACC_SYNTHETIC ?
-      val flags = GenBCode.PublicStatic | (
+      val flags = GenBCodeOps.PublicStatic | (
         if (m.isVarargsMethod) asm.Opcodes.ACC_VARARGS else 0
       )
 
@@ -406,7 +406,8 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
 
       val linkedClass  = moduleClass.companionClass
       lazy val conflictingNames: Set[Name] = {
-        (linkedClass.info.members collect { case sym if sym.name.isTermName => sym.name }).toSet
+        // Dotty deviation: needed to add ": Symbol" because of https://github.com/lampepfl/dotty/issues/2143
+        (linkedClass.info.members collect { case sym: Symbol if sym.name.isTermName => sym.name }).toSet
       }
       debuglog(s"Potentially conflicting names for forwarders: $conflictingNames")
 
@@ -456,7 +457,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
     def addSerialVUID(id: Long, jclass: asm.ClassVisitor) {
       // add static serialVersionUID field if `clasz` annotated with `@SerialVersionUID(uid: Long)`
       jclass.visitField(
-        GenBCode.PublicStaticFinal,
+        GenBCodeOps.PublicStaticFinal,
         "serialVersionUID",
         "J",
         null, // no java-generic-signature
@@ -671,7 +672,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
       val tdesc_creator = androidCreatorType.descriptor
 
       cnode.visitField(
-        GenBCode.PublicStaticFinal,
+        GenBCodeOps.PublicStaticFinal,
         "CREATOR",
         tdesc_creator,
         null, // no java-generic-signature

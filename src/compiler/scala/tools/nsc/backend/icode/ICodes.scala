@@ -30,7 +30,7 @@ abstract class ICodes extends AnyRef
 {
   val global: Global
   import global.{ log, definitions, settings, perRunCaches, devWarning }
-  import Primitives._
+  import jvm.Primitives._
 
   /** The ICode representation of classes */
   val classes = perRunCaches.newMap[global.Symbol, IClass]()

@@ -6,13 +6,12 @@
 package scala.tools.nsc.backend.jvm
 
 import scala.reflect.internal.AnnotationInfos
-import scala.tools.nsc.Global
 
 /**
  * This trait contains code shared between GenBCode and GenASM that depends on types defined in
  * the compiler cake (Global).
  */
-final class BCodeAsmCommon[I <: BackendInterface](interface: I) {
+final class BCodeAsmCommon[I <: BackendInterface](val interface: I) {
 import interface._
 
   /**

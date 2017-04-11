@@ -13,8 +13,8 @@ import scala.collection.mutable.ListBuffer
 abstract class ICodeCheckers {
   val global: Global
   import global._
-  import Primitives._
-  import Opcodes._
+  import jvm.Primitives._
+  import jvm.Opcodes._
 
   /** <p>
    *    This class performs a set of checks similar to what the bytecode

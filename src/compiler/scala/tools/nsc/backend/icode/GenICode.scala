@@ -22,9 +22,9 @@ import scala.annotation.switch
 abstract class GenICode extends SubComponent {
   import global._
   import icodes._
-  import Primitives._
+  import jvm.Primitives._
   import icodes.opcodes._
-  import Opcodes._
+  import jvm.Opcodes._
   import definitions._
   import ScalaPrimitives.{
     isArrayOp, isComparisonOp, isLogicalOp,
@@ -1190,7 +1190,7 @@ abstract class GenICode extends SubComponent {
     def genCoercion(tree: Tree, ctx: Context, code: Int) = {
       import scalaPrimitives._
       import ScalaPrimitives._
-      import Primitives._
+      import jvm.Primitives._
       (code: @switch) match {
         case B2B => ()
         case B2C => ctx.bb.emit(CALL_PRIMITIVE(Conversion(BYTE, CHAR)), tree.pos)

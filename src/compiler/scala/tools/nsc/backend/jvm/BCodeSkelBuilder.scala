@@ -10,7 +10,6 @@ package backend
 package jvm
 
 import scala.collection.{ mutable, immutable }
-import scala.tools.nsc.symtab._
 import scala.annotation.switch
 
 import scala.tools.asm
@@ -192,7 +191,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
      */
     private def addModuleInstanceField() {
       val fv =
-        cnode.visitField(GenBCode.PublicStaticFinal, // TODO confirm whether we really don't want ACC_SYNTHETIC nor ACC_DEPRECATED
+        cnode.visitField(GenBCodeOps.PublicStaticFinal, // TODO confirm whether we really don't want ACC_SYNTHETIC nor ACC_DEPRECATED
                          MODULE_INSTANCE_FIELD,
                          "L" + thisName + ";",
                          null, // no java-generic-signature
@@ -208,7 +207,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
     private def fabricateStaticInit() {
 
       val clinit: asm.MethodVisitor = cnode.visitMethod(
-        GenBCode.PublicStatic, // TODO confirm whether we really don't want ACC_SYNTHETIC nor ACC_DEPRECATED
+        GenBCodeOps.PublicStatic, // TODO confirm whether we really don't want ACC_SYNTHETIC nor ACC_DEPRECATED
         CLASS_CONSTRUCTOR_NAME,
         "()V",
         null, // no java-generic-signature
@@ -574,7 +573,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
 
       val isNative         = methSymbol.hasAnnotation(NativeAttr)
       val isAbstractMethod = (methSymbol.isDeferred || (methSymbol.owner.isInterface && !methSymbol.isJavaDefaultMethod))
-      val flags = GenBCode.mkFlags(
+      val flags = GenBCodeOps.mkFlags(
         javaFlags(methSymbol),
         if (isAbstractMethod)        asm.Opcodes.ACC_ABSTRACT   else 0,
         if (methSymbol.isStrictFP)   asm.Opcodes.ACC_STRICT     else 0,

@@ -7,7 +7,6 @@ package scala.tools.nsc
 package backend.jvm
 
 import scala.tools.asm
-import asm.Opcodes
 
 /**
  * The BTypes component defines The BType class hierarchy. BTypes encapsulates all type information
@@ -32,7 +31,8 @@ abstract class BTypes {
    * Concurrent because stack map frames are computed when in the class writer, which might run
    * on multiple classes concurrently.
    */
-  protected val classBTypeFromInternalNameMap: collection.concurrent.Map[String, ClassBType]
+  protected def classBTypeFromInternalNameMap: collection.concurrent.Map[String, ClassBType]
+    // NOTE: Should be a lazy val but scalac does not allow abstract lazy vals (dotty does)
 
   /**
    * The string represented by the `offset` / `length` values of a ClassBType, see comment of that
@@ -215,7 +215,7 @@ abstract class BTypes {
      *         `opcode` is `IRETURN`, this method returns `FRETURN`.
      */
     final def typedOpcode(opcode: Int): Int = {
-      if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE)
+      if (opcode == asm.Opcodes.IALOAD || opcode == asm.Opcodes.IASTORE)
         opcode + loadStoreOpcodeOffset
       else
         opcode + typedOpcodeOffset
@@ -663,7 +663,7 @@ abstract class BTypes {
           internalName,
           outerName.orNull,
           innerName.orNull,
-          GenBCode.mkFlags(
+          GenBCodeOps.mkFlags(
             info.flags,
             if (isStaticNestedClass) asm.Opcodes.ACC_STATIC else 0
           ) & ClassBType.INNER_CLASSES_FLAGS

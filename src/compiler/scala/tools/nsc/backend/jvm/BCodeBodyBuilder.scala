@@ -13,7 +13,6 @@ import scala.annotation.switch
 
 import scala.tools.asm
 import scala.tools.asm.Label
-import scala.tools.nsc.backend.icode.{Opcodes, Primitives}
 
 /*
  *
@@ -111,7 +110,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       assert(resKind.isNumericType || (resKind == BOOL),
              s"$resKind is not a numeric or boolean type [operation: ${fun.symbol}]")
 
-      import ScalaPrimitives._
+      import ScalaPrimitivesOps._
 
       args match {
         // unary operation
@@ -161,7 +160,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     def genArrayOp(tree: Tree, code: Int, expectedType: BType): BType = tree match{
 
       case Apply(Select(arrayObj, _), args) =>
-      import ScalaPrimitives._
+      import ScalaPrimitivesOps._
       val k = tpeTK(arrayObj)
       genLoad(arrayObj, k)
       val elementType = typeOfArrayOp.getOrElse[bTypes.BType](code, abort(s"Unknown operation on arrays: $tree code: $code"))
@@ -231,7 +230,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       val code = primitives.getPrimitive(tree, receiver.tpe)
 
-      import ScalaPrimitives._
+      import ScalaPrimitivesOps._
 
       if (isArithmeticOp(code))                genArithmeticOp(tree, code)
       else if (code == CONCAT) genStringConcat(tree)
@@ -1053,7 +1052,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
     /* Generate coercion denoted by "code" */
     def genCoercion(code: Int) {
-      import ScalaPrimitives._
+      import ScalaPrimitivesOps._
       (code: @switch) match {
         case B2B | S2S | C2C | I2I | L2L | F2F | D2D => ()
         case _ =>
@@ -1161,7 +1160,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     def liftStringConcat(tree: Tree): List[Tree] = tree match {
       case tree @ Apply(fun @ Select(larg, method), rarg) =>
         if (isPrimitive(fun) &&
-            primitives.getPrimitive(tree, larg.tpe) == ScalaPrimitives.CONCAT)
+            primitives.getPrimitive(tree, larg.tpe) == ScalaPrimitivesOps.CONCAT)
           liftStringConcat(larg) ::: rarg
         else
           tree :: Nil
@@ -1238,10 +1237,10 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     private def genCond(tree: Tree, success: asm.Label, failure: asm.Label) {
 
       def genComparisonOp(l: Tree, r: Tree, code: Int) {
-        val op: TestOp = testOpForPrimitive(code - ScalaPrimitives.ID)
+        val op: TestOp = testOpForPrimitive(code - ScalaPrimitivesOps.ID)
         // special-case reference (in)equality test for null (null eq x, x eq null)
         var nonNullSide: Tree = null
-        if (ScalaPrimitives.isReferenceEqualityOp(code) &&
+        if (ScalaPrimitivesOps.isReferenceEqualityOp(code) &&
             { nonNullSide = ifOneIsNull(l, r); nonNullSide != null }
         ) {
           genLoad(nonNullSide, ObjectReference)
@@ -1264,7 +1263,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       tree match {
 
         case tree @ Apply(fun, args) if isPrimitive(fun) =>
-          import ScalaPrimitives.{ ZNOT, ZAND, ZOR, EQ }
+          import ScalaPrimitivesOps.{ ZNOT, ZAND, ZOR, EQ }
 
           // lhs and rhs of test
           lazy val Select(lhs, _) = fun
@@ -1288,12 +1287,12 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             case ZOR    => genZandOrZor(and = false)
             case code   =>
               // TODO !!!!!!!!!! isReferenceType, in the sense of TypeKind? (ie non-array, non-boxed, non-nothing, may be null)
-              if (ScalaPrimitives.isUniversalEqualityOp(code) && tpeTK(lhs).isClass) {
+              if (ScalaPrimitivesOps.isUniversalEqualityOp(code) && tpeTK(lhs).isClass) {
                 // `lhs` has reference type
                 if (code == EQ) genEqEqPrimitive(lhs, rhs, success, failure)
                 else            genEqEqPrimitive(lhs, rhs, failure, success)
               }
-              else if (ScalaPrimitives.isComparisonOp(code))
+              else if (ScalaPrimitivesOps.isComparisonOp(code))
                 genComparisonOp(lhs, rhs, code)
               else
                 default

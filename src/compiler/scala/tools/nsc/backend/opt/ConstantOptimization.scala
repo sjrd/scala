@@ -28,8 +28,8 @@ abstract class ConstantOptimization extends SubComponent {
   import global._
   import icodes._
   import icodes.opcodes._
-  import scala.tools.nsc.backend.icode.Primitives._
-  import scala.tools.nsc.backend.icode.Opcodes._
+  import scala.tools.nsc.backend.jvm.Primitives._
+  import scala.tools.nsc.backend.jvm.Opcodes._
 
   val phaseName = "constopt"
 
