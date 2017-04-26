@@ -808,7 +808,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       var flatKeys: List[Int]       = Nil
       var targets:  List[asm.Label] = Nil
       var default:  asm.Label       = null
-      var switchBlocks: List[Tuple2[asm.Label, Tree]] = Nil
+      var switchBlocks: List[(asm.Label, Tree)] = Nil
 
       // collect switch blocks and their keys, but don't emit yet any switch-block.
       for (caze @ CaseDef(pat, guard, body) <- cases) {
