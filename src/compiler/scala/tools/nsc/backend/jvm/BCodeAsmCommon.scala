@@ -5,8 +5,6 @@
 
 package scala.tools.nsc.backend.jvm
 
-import scala.reflect.internal.AnnotationInfos
-
 /**
  * This trait contains code shared between GenBCode and GenASM that depends on types defined in
  * the compiler cake (Global).
@@ -112,9 +110,8 @@ object BCodeAsmCommon{
     ca
   }
 
-  final def arrEncode(sb: AnnotationInfos#ScalaSigBytes): Array[String] = {
+  final def arrEncode(bSeven: Array[Byte]): Array[String] = {
     var strs: List[String]  = Nil
-    val bSeven: Array[Byte] = sb.sevenBitsMayBeZero
     // chop into slices of at most 65535 bytes, counting 0x00 as taking two bytes (as per JVMS 4.4.7 The CONSTANT_Utf8_info Structure)
     var prevOffset = 0
     var offset     = 0
@@ -142,12 +139,13 @@ object BCodeAsmCommon{
   }
 
 
-  def strEncode(sb: AnnotationInfos#ScalaSigBytes): String = {
-    val ca = ubytesToCharArray(sb.sevenBitsMayBeZero)
+  def strEncode(bSeven: Array[Byte]): String = {
+    val ca = ubytesToCharArray(bSeven)
     new java.lang.String(ca)
     // debug val bvA = new asm.ByteVector; bvA.putUTF8(s)
     // debug val enc: Array[Byte] = scala.reflect.internal.pickling.ByteCodecs.encode(bytes)
     // debug assert(enc(idx) == bvA.getByte(idx + 2))
     // debug assert(bvA.getLength == enc.size + 2)
   }
+
 }

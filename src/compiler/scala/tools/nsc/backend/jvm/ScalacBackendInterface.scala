@@ -10,7 +10,6 @@ import scala.reflect.io.AbstractFile
 import scala.language.implicitConversions
 import scala.reflect.internal.{Flags => IFlags}
 
-
 /* Uses pre-allocated objects to not allocate objects during pattern matching and during implicit conversion.
  * Due to this every instance in not threadsafe, but multiple instances could be used in parrallel if underlying compiler
  * supports this
@@ -1025,10 +1024,10 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
         // see http://www.scala-lang.org/sid/10 (Storage of pickled Scala signatures in class files)
         // also JVMS Sec. 4.7.16.1 The element_value structure and JVMS Sec. 4.4.7 The CONSTANT_Utf8_info Structure.
         if (sb.fitsInOneString) {
-          av.visit(name, BCodeAsmCommon.strEncode(sb))
+          av.visit(name, BCodeAsmCommon.strEncode(sb.sevenBitsMayBeZero))
         } else {
           val arrAnnotV: asm.AnnotationVisitor = av.visitArray(name)
-          for(arg <- BCodeAsmCommon.arrEncode(sb)) { arrAnnotV.visit(name, arg) }
+          for(arg <- BCodeAsmCommon.arrEncode(sb.sevenBitsMayBeZero)) { arrAnnotV.visit(name, arg) }
           arrAnnotV.visitEnd()
         }          // for the lazy val in ScalaSigBytes to be GC'ed, the invoker of emitAnnotations() should hold the ScalaSigBytes in a method-local var that doesn't escape.
 

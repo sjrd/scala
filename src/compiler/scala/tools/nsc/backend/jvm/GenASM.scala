@@ -899,10 +899,10 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
           // see http://www.scala-lang.org/sid/10 (Storage of pickled Scala signatures in class files)
           // also JVMS Sec. 4.7.16.1 The element_value structure and JVMS Sec. 4.4.7 The CONSTANT_Utf8_info Structure.
           if (sb.fitsInOneString)
-            av.visit(name, strEncode(sb))
+            av.visit(name, strEncode(sb.sevenBitsMayBeZero))
           else {
             val arrAnnotV: asm.AnnotationVisitor = av.visitArray(name)
-            for(arg <- arrEncode(sb)) { arrAnnotV.visit(name, arg) }
+            for(arg <- arrEncode(sb.sevenBitsMayBeZero)) { arrAnnotV.visit(name, arg) }
             arrAnnotV.visitEnd()
           }
           // for the lazy val in ScalaSigBytes to be GC'ed, the invoker of emitAnnotations() should hold the ScalaSigBytes in a method-local var that doesn't escape.
