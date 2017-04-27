@@ -522,7 +522,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
 
       mirrorClass.visitEnd()
 
-      ("" + moduleClass.name) // this side-effect is necessary, really.
+      moduleClass.name // this side-effect is necessary, really.
 
       mirrorClass
     }
