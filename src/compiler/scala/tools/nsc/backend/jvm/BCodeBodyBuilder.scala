@@ -654,7 +654,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         // therefore, we can ignore this fact, and generate code that leaves nothing
         // on the stack (contrary to what the type in the AST says).
         case Apply(fun @ Select(Super(_, mix), _), args) =>
-          val invokeStyle = Opcodes.SuperCall(mix.toString)
+          val invokeStyle = Opcodes.SuperCall(mix.mangledString)
           // if (fun.symbol.isConstructor) Static(true) else SuperCall(mix);
           mnode.visitVarInsn(asm.Opcodes.ALOAD, 0)
           genLoadArguments(args, paramTKs(app))
@@ -1354,7 +1354,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
           genCZJUMP(success, failure, Primitives.NE, BOOL)
         } else {
           // l == r -> if (l eq null) r eq null else l.equals(r)
-          val eqEqTempLocal = locals.makeLocal(ObjectReference, nme_EQEQ_LOCAL_VAR.toString, Object_Type, r.pos)
+          val eqEqTempLocal = locals.makeLocal(ObjectReference, nme_EQEQ_LOCAL_VAR.mangledString, Object_Type, r.pos)
           val lNull    = new asm.Label
           val lNonNull = new asm.Label
 
@@ -1393,7 +1393,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       val targetHandle =
         new asm.Handle(invokeStyle,
           classBTypeFromSymbol(lambdaTarget.owner).internalName,
-          lambdaTarget.name.toString,
+          lambdaTarget.name.mangledString,
           asmMethodType(lambdaTarget).descriptor)
 
       val (a,b) = lambdaTarget.info.paramTypes.splitAt(environmentSize)
@@ -1408,7 +1408,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       // TODO specialization
       val constrainedType = new MethodBType(lambdaParamTypes.map(p => toTypeKind(p)), toTypeKind(lambdaTarget.tpe.resultType)).toASMType
       val abstractMethod = functionalInterface.samMethod()
-      val methodName = abstractMethod.name.toString
+      val methodName = abstractMethod.name.mangledString
       val applyN = {
         val mt = asmMethodType(abstractMethod)
         mt.toASMType

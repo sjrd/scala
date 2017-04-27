@@ -429,11 +429,11 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def fullName(sep: Char): String
     def fullName: String
     def simpleName: Name
-    def javaSimpleName: Name
+    def javaSimpleName: String
     def javaBinaryName: String
     def javaClassName: String
     def name: Name
-    def rawname: Name // todo ????
+    def rawname: String
 
     // types
     def info: Type
@@ -601,6 +601,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def isTypeName: Boolean
     def isTermName: Boolean
     def startsWith(s: String): Boolean
+    def mangledString: String
   }
 
   abstract class AnnotationHelper{
