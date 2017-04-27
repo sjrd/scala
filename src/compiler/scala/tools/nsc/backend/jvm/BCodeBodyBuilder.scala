@@ -1423,7 +1423,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
   }
   val lambdaMetaFactoryBootstrapHandle =
     new asm.Handle(asm.Opcodes.H_INVOKESTATIC,
-      int.LambdaMetaFactory.javaBinaryName.toString, int.MetafactoryName,
+      int.LambdaMetaFactory.javaBinaryName, int.MetafactoryName,
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;")
 
 }
