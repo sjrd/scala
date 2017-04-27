@@ -598,16 +598,10 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   }
 
   abstract class NameHelper {
-    def offset: Int
-    def index = offset
-    def start = offset
-    def len: Int
-    def length = len
     def toTypeName: Name
     def isTypeName: Boolean
     def isTermName: Boolean
     def toTermName: Name
-    def dropModule: Name
     def startsWith(s: String): Boolean
   }
 
