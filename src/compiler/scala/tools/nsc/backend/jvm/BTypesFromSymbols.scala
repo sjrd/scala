@@ -55,10 +55,10 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
       s"Cannot create ClassBType for special class symbol ${classSym.fullName}")
 
     convertedClasses.getOrElse(classSym, {
-      val internalName = classSym.javaBinaryName.toTypeName
+      val internalName = classSym.javaBinaryName
       // We first create and add the ClassBType to the hash map before computing its info. This
       // allows initializing cylic dependencies, see the comment on variable ClassBType._info.
-      val classBType = new ClassBType(internalName.start, internalName.length)
+      val classBType = new ClassBType(internalName)
       convertedClasses(classSym) = classBType
       setClassInfo(classSym, classBType)
     })
@@ -163,8 +163,9 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
         } else {
           val outerName = innerClassSym.rawowner.javaBinaryName
           // Java compatibility. See the big comment in BTypes that summarizes the InnerClass spec.
-          val outerNameModule = if (innerClassSym.rawowner.isTopLevelModuleClass) outerName.dropModule
-          else outerName
+          val outerNameModule =
+            if (innerClassSym.rawowner.isTopLevelModuleClass) dropModule(outerName)
+            else outerName
           Some(outerNameModule.toString)
         }
       }

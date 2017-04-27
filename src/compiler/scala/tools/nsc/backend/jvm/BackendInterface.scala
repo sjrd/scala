@@ -430,7 +430,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def fullName: String
     def simpleName: Name
     def javaSimpleName: Name
-    def javaBinaryName: Name
+    def javaBinaryName: String
     def javaClassName: String
     def name: Name
     def rawname: Name // todo ????
@@ -640,8 +640,10 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   def perRunCaches: Caches
 
   def MODULE_INSTANCE_FIELD: String
-  def internalNameString(offset: Int, length: Int): String
-  /*  Returns a ScalaSignature annotation if it must be added to this class, none otherwise.
+
+  def dropModule(str: String): String
+
+/*  Returns a ScalaSignature annotation if it must be added to this class, none otherwise.
  *  This annotation must be added to the class' annotations list when generating them.
  *
  *  Depending on whether the returned option is defined, it adds to `jclass` one of:

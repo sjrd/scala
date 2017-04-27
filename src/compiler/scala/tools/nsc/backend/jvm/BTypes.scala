@@ -35,12 +35,6 @@ abstract class BTypes {
     // NOTE: Should be a lazy val but scalac does not allow abstract lazy vals (dotty does)
 
   /**
-   * The string represented by the `offset` / `length` values of a ClassBType, see comment of that
-   * class.
-   */
-  def internalNameString(offset: Int, length: Int): String = int.internalNameString(offset, length)
-
-  /**
    * Obtain a previously constructed ClassBType for a given internal name.
    */
   def classBTypeFromInternalName(internalName: String) = classBTypeFromInternalNameMap(internalName)
@@ -586,7 +580,7 @@ abstract class BTypes {
    * ClassBType is not a case class because we want a custom equals method, and because the
    * extractor extracts the internalName, which is what you typically need.
    */
-  final class ClassBType(val offset: Int, val length: Int) extends RefBType {
+  final class ClassBType(val internalName: String) extends RefBType {
     /**
      * Write-once variable allows initializing a cyclic graph of infos. This is required for
      * nested classes. Example: for the definition `class A { class B }` we have
@@ -637,7 +631,7 @@ abstract class BTypes {
      * The internal name of a class is the string returned by java.lang.Class.getName, with all '.'
      * replaced by '/'. For example "java/lang/String".
      */
-    def internalName: String = internalNameString(offset, length)
+    //def internalName: String = internalNameString(offset, length)
 
     /**
      * @return The class name without the package prefix
@@ -744,15 +738,14 @@ abstract class BTypes {
      * Custom equals / hashCode: we only compare the name (offset / length)
      */
     override def equals(o: Any): Boolean = (this eq o.asInstanceOf[Object]) || (o match {
-      case c: ClassBType => c.offset == this.offset && c.length == this.length
+      case c: ClassBType => c.internalName == this.internalName
       case _ => false
     })
 
     override def hashCode: Int = {
       import scala.runtime.Statics
       var acc: Int = -889275714
-      acc = Statics.mix(acc, offset)
-      acc = Statics.mix(acc, length)
+      acc = Statics.mix(acc, internalName.hashCode)
       Statics.finalizeHash(acc, 2)
     }
   }
