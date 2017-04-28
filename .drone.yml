@@ -1,0 +1,6 @@
+pipeline:
+  test:
+    image: lampepfl/scala:latest
+    pull: true
+    commands:
+      - ant build
