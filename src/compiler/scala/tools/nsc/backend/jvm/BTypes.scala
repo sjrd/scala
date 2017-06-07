@@ -754,9 +754,7 @@ abstract class BTypes {
     /**
      * Pattern matching on a ClassBType extracts the `internalName` of the class.
      */
-    def unapply(c: ClassBType): Option[String] =
-      if (c == null) None
-      else Some(c.internalName)
+    def unapply(c: ClassBType): Some[String] = Some(c.internalName)
 
     /**
      * Valid flags for InnerClass attribute entry.
