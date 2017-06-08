@@ -176,7 +176,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
      * can-multi-thread
      */
     def pickleMarkerForeign = {
-      createJAttribute(ScalaSignatureATTRName, new Array[Byte](0), 0, 0)
+      createJAttribute(ScalaATTRName, new Array[Byte](0), 0, 0)
     }
   } // end of trait BCPickles
 
