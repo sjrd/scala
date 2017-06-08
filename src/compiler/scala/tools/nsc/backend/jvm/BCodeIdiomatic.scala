@@ -417,9 +417,9 @@ trait BCodeIdiomatic {
     // can-multi-thread
     final def goTo(label: asm.Label): Unit = { jmethod.visitJumpInsn(Opcodes.GOTO, label) }
     // can-multi-thread
-    final def emitIF(cond: TestOp, label: asm.Label): Unit =      { jmethod.visitJumpInsn(cond.opcodeIF,     label) }
+    final def emitIF(cond: TestOp, label: asm.Label): Unit =      { jmethod.visitJumpInsn(cond.opcodeIF(),     label) }
     // can-multi-thread
-    final def emitIF_ICMP(cond: TestOp, label: asm.Label): Unit = { jmethod.visitJumpInsn(cond.opcodeIFICMP, label) }
+    final def emitIF_ICMP(cond: TestOp, label: asm.Label): Unit = { jmethod.visitJumpInsn(cond.opcodeIFICMP(), label) }
     // can-multi-thread
     final def emitIF_ACMP(cond: TestOp, label: asm.Label): Unit = {
       assert((cond == EQ) || (cond == NE), cond)

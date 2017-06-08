@@ -1295,10 +1295,10 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
               else if (ScalaPrimitivesOps.isComparisonOp(code))
                 genComparisonOp(lhs, rhs, code)
               else
-                default
+                default()
           }
 
-        case _ => default
+        case _ => default()
       }
 
     } // end of genCond()
