@@ -697,6 +697,7 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
   lazy val LambdaMetaFactory = getClassIfDefined("java.lang.invoke.LambdaMetafactory")
   lazy val MethodHandle = getClassIfDefined("java.lang.invoke.MethodHandle")
 
+  val ScalaATTRName: String = "Scala"
   val ScalaSignatureATTRName: String = "ScalaSig"
   val MetafactoryName: String = "metafactory"
 
