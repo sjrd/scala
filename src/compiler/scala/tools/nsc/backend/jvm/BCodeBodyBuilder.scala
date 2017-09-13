@@ -1237,13 +1237,16 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       }
     }
 
-    val testOpForPrimitive: Array[TestOp] = {
-      import Primitives._
-
-      Array(
-        EQ, NE, EQ, NE, LT, LE, GE, GT
-      )
-    }
+    def testOpForPrimitive(primitiveCode: Int) = (primitiveCode: @switch) match {
+       case ScalaPrimitivesOps.ID => Primitives.EQ
+       case ScalaPrimitivesOps.NI => Primitives.NE
+       case ScalaPrimitivesOps.EQ => Primitives.EQ
+       case ScalaPrimitivesOps.NE => Primitives.NE
+       case ScalaPrimitivesOps.LT => Primitives.LT
+       case ScalaPrimitivesOps.LE => Primitives.LE
+       case ScalaPrimitivesOps.GE => Primitives.GE
+       case ScalaPrimitivesOps.GT => Primitives.GT
+     }
 
     /*
      * Generate code for conditional expressions.
