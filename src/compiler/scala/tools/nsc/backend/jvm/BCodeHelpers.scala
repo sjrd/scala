@@ -710,3 +710,23 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
 
   } // end of trait JAndroidBuilder
 }
+
+object BCodeHelpers {
+
+  class InvokeStyle(val style: Int) extends AnyVal {
+    import InvokeStyle._
+    def isVirtual: Boolean = this == Virtual
+    def isStatic : Boolean = this == Static
+    def isSpecial: Boolean = this == Special
+    def isSuper  : Boolean = this == Super
+
+    def hasInstance = this != Static
+  }
+
+  object InvokeStyle {
+    val Virtual = new InvokeStyle(0) // InvokeVirtual or InvokeInterface
+    val Static  = new InvokeStyle(1) // InvokeStatic
+    val Special = new InvokeStyle(2) // InvokeSpecial (private methods, constructors)
+    val Super   = new InvokeStyle(3) // InvokeSpecial (super calls)
+  }
+}

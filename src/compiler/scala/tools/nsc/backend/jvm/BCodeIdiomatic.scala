@@ -113,7 +113,6 @@ trait BCodeIdiomatic {
     def jmethod: asm.MethodVisitor
 
     import asm.Opcodes;
-    import backend.jvm.Opcodes._
 
     final def emit(opc: Int): Unit = { jmethod.visitInsn(opc) }
 

@@ -13,6 +13,7 @@ import scala.annotation.switch
 
 import scala.tools.asm
 import scala.tools.asm.Label
+import scala.tools.nsc.backend.jvm.BCodeHelpers.InvokeStyle
 
 /*
  *
@@ -33,7 +34,6 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
   abstract class PlainBodyBuilder(cunit: CompilationUnit) extends PlainSkelBuilder(cunit) {
 
     import Primitives.TestOp
-    import Opcodes.InvokeStyle
 
     /*  If the selector type has a member with the right name,
      *  it is the host class; otherwise the symbol's owner.
@@ -654,7 +654,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         // therefore, we can ignore this fact, and generate code that leaves nothing
         // on the stack (contrary to what the type in the AST says).
         case Apply(fun @ Select(Super(_, mix), _), args) =>
-          val invokeStyle = Opcodes.SuperCall(mix.mangledString)
+          val invokeStyle = InvokeStyle.Super
           // if (fun.symbol.isConstructor) Static(true) else SuperCall(mix);
           mnode.visitVarInsn(asm.Opcodes.ALOAD, 0)
           genLoadArguments(args, paramTKs(app))
@@ -681,7 +681,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
               mnode.visitTypeInsn(asm.Opcodes.NEW, rt.internalName)
               bc dup generatedType
               genLoadArguments(args, paramTKs(app))
-              genCallMethod(ctor, Opcodes.Static(onInstance = true))
+              genCallMethod(ctor, InvokeStyle.Special)
 
             case _ =>
               abort(s"Cannot instantiate $tpt of kind: $generatedType")
@@ -714,9 +714,9 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
             def genNormalMethodCall(): Unit = {
 
               val invokeStyle =
-                if (sym.isStaticMember) Opcodes.Static(onInstance = false)
-                else if (sym.isPrivate || sym.isClassConstructor) Opcodes.Static(onInstance = true)
-                else Opcodes.Dynamic;
+                if (sym.isStaticMember) InvokeStyle.Static
+                else if (sym.isPrivate || sym.isClassConstructor) InvokeStyle.Special
+                else InvokeStyle.Virtual
 
               if (invokeStyle.hasInstance) {
                 genLoadQualifier(fun)
@@ -728,7 +728,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
               var hostClass:      Symbol = null
 
               fun match {
-                case Select(qual, _) if isArrayClone(fun) && invokeStyle.isDynamic =>
+                case Select(qual, _) if isArrayClone(fun) && invokeStyle.isVirtual =>
                   val targetTypeKind = tpeTK(qual)
                   val target: String = targetTypeKind.asRefBType.classOrArrayType
                   bc.invokevirtual(target, "clone", "()Ljava/lang/Object;")
@@ -1069,7 +1069,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         // Optimization for expressions of the form "" + x.  We can avoid the StringBuilder.
         case List(Literal(Constant("")), arg) =>
           genLoad(arg, ObjectReference)
-          genCallMethod(String_valueOf, Opcodes.Static(onInstance = false))
+          genCallMethod(String_valueOf, InvokeStyle.Static)
 
         case concatenations =>
           bc.genStartConcat
@@ -1101,7 +1101,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       // whether to reference the type of the receiver or
       // the type of the method owner
       val useMethodOwner = (
-           style != Opcodes.Dynamic
+           !style.isVirtual
         || hostSymbol.isBottomClass
         || methodOwner == ObjectClass
       )
@@ -1128,11 +1128,9 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         }
       }
 
-      if (style.isStatic) {
-        if (style.hasInstance) { bc.invokespecial  (jowner, jname, mdescr) }
-        else                   { bc.invokestatic   (jowner, jname, mdescr) }
-      }
-      else if (style.isDynamic) {
+      if (style.isStatic)                 { bc.invokestatic   (jowner, jname, mdescr) }
+      else if (style.isSpecial)           { bc.invokespecial  (jowner, jname, mdescr) }
+      else if (style.isVirtual) {
         if (needsInterfaceCall(receiver)) { bc.invokeinterface(jowner, jname, mdescr) }
         else                              { bc.invokevirtual  (jowner, jname, mdescr) }
       }
@@ -1148,7 +1146,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     def genScalaHash(tree: Tree): BType = {
       genLoadModule(ScalaRunTimeModule) // TODO why load ScalaRunTimeModule if ## has InvokeStyle of Static(false) ?
       genLoad(tree, ObjectReference)
-      genCallMethod(hashMethodSym, Opcodes.Static(onInstance = false))
+      genCallMethod(hashMethodSym, InvokeStyle.Static)
 
       INT
     }
@@ -1334,7 +1332,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         }
         genLoad(l, ObjectReference)
         genLoad(r, ObjectReference)
-        genCallMethod(equalsMethod, Opcodes.Static(onInstance = false))
+        genCallMethod(equalsMethod, InvokeStyle.Static)
         genCZJUMP(success, failure, Primitives.NE, BOOL)
       }
       else {
@@ -1350,7 +1348,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
           // SI-7852 Avoid null check if L is statically non-null.
           genLoad(l, ObjectReference)
           genLoad(r, ObjectReference)
-          genCallMethod(Object_equals, Opcodes.Dynamic)
+          genCallMethod(Object_equals, InvokeStyle.Virtual)
           genCZJUMP(success, failure, Primitives.NE, BOOL)
         } else {
           // l == r -> if (l eq null) r eq null else l.equals(r)
@@ -1371,7 +1369,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
           markProgramPoint(lNonNull)
           locals.load(eqEqTempLocal)
-          genCallMethod(Object_equals, Opcodes.Dynamic)
+          genCallMethod(Object_equals, InvokeStyle.Virtual)
           genCZJUMP(success, failure, Primitives.NE, BOOL)
         }
       }
