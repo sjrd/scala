@@ -713,6 +713,7 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
   val BoxedDoubleClass: Symbol = requiredClass[java.lang.Double]
   val StringClass: Symbol = requiredClass[java.lang.String]
   val StringBuilderClass: Symbol = requiredClass[scala.collection.mutable.StringBuilder]
+  val JavaStringBuilderClass: Symbol = requiredClass[java.lang.StringBuilder]
   val JavaStringBufferClass: Symbol = requiredClass[java.lang.StringBuffer]
   val JavaCharSequenceClass: Symbol = requiredClass[java.lang.CharSequence]
   val ThrowableClass: Symbol = requiredClass[java.lang.Throwable]

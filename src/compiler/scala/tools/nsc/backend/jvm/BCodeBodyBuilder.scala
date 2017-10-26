@@ -1096,7 +1096,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       }
 
-      StringReference
+      StringRef
     }
 
     def genCallMethod(method: Symbol, style: InvokeStyle, hostClass0: Symbol = null, pos: Position = NoPosition): Unit = {

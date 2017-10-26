@@ -222,24 +222,24 @@ trait BCodeIdiomatic {
     /*
      * can-multi-thread
      */
-    final def genStringConcat(el: BType, pos: Position): Unit = {
+    final def genStringConcat(el: BType): Unit = {
       val jtype = el match {
-        case ct: ClassBType if ct.isSubtypeOf(StringRef).get          => StringRef
-        case ct: ClassBType if ct.isSubtypeOf(jlStringBufferRef).get  => jlStringBufferRef
-        case ct: ClassBType if ct.isSubtypeOf(jlCharSequenceRef).get  => jlCharSequenceRef
-        case rt: RefBType                                             => ObjectRef
-        case pt: PrimitiveBType                                       => pt  // Currently this ends up being boxed in erasure
+        case ct: ClassBType if ct.isSubtypeOf(StringRef)          => StringRef
+        case ct: ClassBType if ct.isSubtypeOf(jlStringBufferRef)  => jlStringBufferRef
+        case ct: ClassBType if ct.isSubtypeOf(jlCharSequenceRef)  => jlCharSequenceRef
+        case rt: RefBType                                         => ObjectReference
+        case pt: PrimitiveBType                                   => pt  // Currently this ends up being boxed in erasure
       }
 
       val bt = MethodBType(List(jtype), jlStringBuilderRef)
-      invokevirtual(JavaStringBuilderClassName, "append", bt.descriptor, pos)
+      invokevirtual(JavaStringBuilderClassName, "append", bt.descriptor)
     }
 
     /*
      * can-multi-thread
      */
     final def genEndConcat: Unit = {
-      invokevirtual(JavaStringBuilderClassName, "toString", "()Ljava/lang/String;", pos)
+      invokevirtual(JavaStringBuilderClassName, "toString", "()Ljava/lang/String;")
     }
 
     /*
