@@ -43,7 +43,7 @@ trait BCodeIdiomatic {
     if (emitStackMapFrame) asm.ClassWriter.COMPUTE_FRAMES else 0
   )
 
-  val StringBuilderClassName = "scala/collection/mutable/StringBuilder"
+  lazy val JavaStringBuilderClassName = jlStringBuilderRef.internalName
 
   val CLASS_CONSTRUCTOR_NAME    = "<clinit>"
   val INSTANCE_CONSTRUCTOR_NAME = "<init>"
@@ -210,10 +210,10 @@ trait BCodeIdiomatic {
      * can-multi-thread
      */
     final def genStartConcat: Unit = {
-      jmethod.visitTypeInsn(Opcodes.NEW, StringBuilderClassName)
+      jmethod.visitTypeInsn(Opcodes.NEW, JavaStringBuilderClassName)
       jmethod.visitInsn(Opcodes.DUP)
       invokespecial(
-        StringBuilderClassName,
+        JavaStringBuilderClassName,
         INSTANCE_CONSTRUCTOR_NAME,
         "()V"
       )
@@ -222,22 +222,27 @@ trait BCodeIdiomatic {
     /*
      * can-multi-thread
      */
-    final def genStringConcat(el: BType): Unit = {
-
-      val jtype =
-        if (el.isArray || el.isClass) ObjectReference
-        else el
-
-      val bt = MethodBType(List(jtype), StringBuilderReference)
-
-      invokevirtual(StringBuilderClassName, "append", bt.descriptor)
+    def genConcat(elemType: BType): Unit = {
+      val paramType = elemType match {
+        case ct: ClassBType if ct.isSubtypeOf(StringRef)          => StringRef
+        case ct: ClassBType if ct.isSubtypeOf(jlStringBufferRef)  => jlStringBufferRef
+        case ct: ClassBType if ct.isSubtypeOf(jlCharSequenceRef)  => jlCharSequenceRef
+        // Don't match for `ArrayBType(CHAR)`, even though StringBuilder has such an overload:
+        // `"a" + Array('b')` should NOT be "ab", but "a[C@...".
+        case _: RefBType                                              => ObjectReference
+        // jlStringBuilder does not have overloads for byte and short, but we can just use the int version
+        case BYTE | SHORT                                             => INT
+        case pt: PrimitiveBType                                       => pt
+      }
+      val bt = MethodBType(List(paramType), jlStringBuilderRef)
+      invokevirtual(JavaStringBuilderClassName, "append", bt.descriptor)
     }
 
     /*
      * can-multi-thread
      */
     final def genEndConcat: Unit = {
-      invokevirtual(StringBuilderClassName, "toString", "()Ljava/lang/String;")
+      invokevirtual(JavaStringBuilderClassName, "toString", "()Ljava/lang/String;")
     }
 
     /*
