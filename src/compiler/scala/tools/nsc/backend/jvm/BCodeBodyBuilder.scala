@@ -1415,7 +1415,8 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         new asm.Handle(invokeStyle,
           classBTypeFromSymbol(lambdaTarget.owner).internalName,
           lambdaTarget.name.mangledString,
-          asmMethodType(lambdaTarget).descriptor)
+          asmMethodType(lambdaTarget).descriptor,
+          invokeStyle == asm.Opcodes.H_INVOKEINTERFACE)
 
       val (a,b) = lambdaTarget.info.paramTypes.splitAt(environmentSize)
       var (capturedParamsTypes, lambdaParamTypes) = if(int.doLabmdasFollowJVMMetafactoryOrder) (a,b) else (b,a)
@@ -1445,6 +1446,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
   val lambdaMetaFactoryBootstrapHandle =
     new asm.Handle(asm.Opcodes.H_INVOKESTATIC,
       int.LambdaMetaFactory.javaBinaryName, int.MetafactoryName,
-      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;")
+      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+      false)
 
 }
