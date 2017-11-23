@@ -72,7 +72,7 @@ import interface._
     enclosingClass(classSym.originalOwner)
   }
 
-  final case class EnclosingMethodEntry(owner: String, name: String, methodDescriptor: String)
+  /*final*/ case class EnclosingMethodEntry(owner: String, name: String, methodDescriptor: String)
 
   /**
    * Data for emitting an EnclosingMethod attribute. None if `classSym` is a member class (not
