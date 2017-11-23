@@ -180,7 +180,6 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
   }
 
   // legacy, to be removed when the @remote annotation gets removed
-  final def isRemote(s: Symbol) = (s hasAnnotation RemoteAttr)
   final def hasPublicBitSet(flags: Int) = ((flags & asm.Opcodes.ACC_PUBLIC) != 0)
 
   /**

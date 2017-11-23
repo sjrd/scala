@@ -967,30 +967,13 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
       }
     }
 
-    /** Adds a @remote annotation, actual use unknown.
-     *
-     * Invoked from genMethod() and addForwarder().
-     */
-    def addRemoteExceptionAnnot(isRemoteClass: Boolean, isJMethodPublic: Boolean, meth: Symbol) {
-      val needsAnnotation = (
-        (  isRemoteClass ||
-           isRemote(meth) && isJMethodPublic
-        ) && !(meth.throwsAnnotations contains RemoteExceptionClass)
-      )
-      if (needsAnnotation) {
-        val c   = Constant(RemoteExceptionClass.tpe)
-        val arg = Literal(c) setType c.tpe
-        meth.addAnnotation(appliedType(ThrowsClass, c.tpe), arg)
-      }
-    }
-
     // -----------------------------------------------------------------------------------------
     // Static forwarders (related to mirror classes but also present in
     // a plain class lacking companion module, for details see `isCandidateForForwarders`).
     // -----------------------------------------------------------------------------------------
 
     /** Add a forwarder for method m. Used only from addForwarders(). */
-    private def addForwarder(isRemoteClass: Boolean, jclass: asm.ClassVisitor, module: Symbol, m: Symbol) {
+    private def addForwarder(jclass: asm.ClassVisitor, module: Symbol, m: Symbol) {
       val moduleName     = javaName(module)
       val methodInfo     = module.thisType.memberInfo(m)
       val paramJavaTypes: List[asm.Type] = methodInfo.paramTypes map javaType
@@ -1008,7 +991,6 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
 
       // TODO needed? for(ann <- m.annotations) { ann.symbol.initialize }
       val jgensig = staticForwarderGenericSignature(m, module)
-      addRemoteExceptionAnnot(isRemoteClass, hasPublicBitSet(flags), m)
       val (throws, others) = m.annotations partition (_.symbol == ThrowsClass)
       val thrownExceptions: List[String] = getExceptions(throws)
 
