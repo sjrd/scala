@@ -478,7 +478,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
      * Otherwise it's safe to call from multiple threads.
      */
     def genConstant(const: Constant): Unit = {
-      (const.tag: @switch) match {
+      (const.tag/*: @switch*/) match {
 
         case BooleanTag => bc.boolconst(const.booleanValue)
 
@@ -625,7 +625,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         for (i <- args.length until dims) elemKind = ArrayBType(elemKind)
       }
       genLoadArguments(args, List.fill(args.size)(INT))
-      (argsSize : @switch) match {
+      (argsSize /*: @switch*/) match {
         case 1 => bc newarray elemKind
         case _ =>
           val descr = ("[" * argsSize) + elemKind.descriptor // denotes the same as: arrayN(elemKind, argsSize).descriptor
