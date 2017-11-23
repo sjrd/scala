@@ -871,7 +871,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       if(!int.shouldEmitJumpAfterLabels) genNormalBlock
       else {
-        val (prefixLabels: List[LabelDef], stats1) = stats.span {
+        val (prefixLabels: List[LabelDef] @unchecked, stats1) = stats.span {
           case t@LabelDef(_, _, _) => true
           case _ => false
         }
@@ -1221,7 +1221,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         if (tk.isIntSizedType) { // BOOL, BYTE, CHAR, SHORT, or INT
           bc.emitIF(op, success)
         } else if (tk.isRef) { // REFERENCE(_) | ARRAY(_)
-          op match { // references are only compared with EQ and NE
+          (op: @unchecked) match { // references are only compared with EQ and NE
             case EQ => bc emitIFNULL    success
             case NE => bc emitIFNONNULL success
           }
