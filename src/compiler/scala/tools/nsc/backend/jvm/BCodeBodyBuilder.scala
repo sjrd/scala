@@ -478,7 +478,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
      * Otherwise it's safe to call from multiple threads.
      */
     def genConstant(const: Constant): Unit = {
-      (const.tag: @switch) match {
+      (const.tag/*: @switch*/) match {
 
         case BooleanTag => bc.boolconst(const.booleanValue)
 
@@ -625,7 +625,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         for (i <- args.length until dims) elemKind = ArrayBType(elemKind)
       }
       genLoadArguments(args, List.fill(args.size)(INT))
-      (argsSize : @switch) match {
+      (argsSize /*: @switch*/) match {
         case 1 => bc newarray elemKind
         case _ =>
           val descr = ("[" * argsSize) + elemKind.descriptor // denotes the same as: arrayN(elemKind, argsSize).descriptor
@@ -871,7 +871,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
 
       if(!int.shouldEmitJumpAfterLabels) genNormalBlock
       else {
-        val (prefixLabels: List[LabelDef], stats1) = stats.span {
+        val (prefixLabels: List[LabelDef] @unchecked, stats1) = stats.span {
           case t@LabelDef(_, _, _) => true
           case _ => false
         }
@@ -1221,7 +1221,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         if (tk.isIntSizedType) { // BOOL, BYTE, CHAR, SHORT, or INT
           bc.emitIF(op, success)
         } else if (tk.isRef) { // REFERENCE(_) | ARRAY(_)
-          op match { // references are only compared with EQ and NE
+          (op: @unchecked) match { // references are only compared with EQ and NE
             case EQ => bc emitIFNULL    success
             case NE => bc emitIFNONNULL success
           }
@@ -1415,7 +1415,8 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         new asm.Handle(invokeStyle,
           classBTypeFromSymbol(lambdaTarget.owner).internalName,
           lambdaTarget.name.mangledString,
-          asmMethodType(lambdaTarget).descriptor)
+          asmMethodType(lambdaTarget).descriptor,
+          invokeStyle == asm.Opcodes.H_INVOKEINTERFACE)
 
       val (a,b) = lambdaTarget.info.paramTypes.splitAt(environmentSize)
       var (capturedParamsTypes, lambdaParamTypes) = if(int.doLabmdasFollowJVMMetafactoryOrder) (a,b) else (b,a)
@@ -1445,6 +1446,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
   val lambdaMetaFactoryBootstrapHandle =
     new asm.Handle(asm.Opcodes.H_INVOKESTATIC,
       int.LambdaMetaFactory.javaBinaryName, int.MetafactoryName,
-      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;")
+      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+      false)
 
 }

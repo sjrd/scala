@@ -738,7 +738,7 @@ abstract class BTypes {
      * Custom equals / hashCode: we only compare the name (offset / length)
      */
     override def equals(o: Any): Boolean = (this eq o.asInstanceOf[Object]) || (o match {
-      case c: ClassBType => c.internalName == this.internalName
+      case c: ClassBType @unchecked => c.internalName == this.internalName
       case _ => false
     })
 
@@ -859,5 +859,5 @@ abstract class BTypes {
   /**
    * Just a named pair, used in CoreBTypes.asmBoxTo/asmUnboxTo.
    */
-  final case class MethodNameAndType(name: String, methodType: MethodBType)
+  /*final*/ case class MethodNameAndType(name: String, methodType: MethodBType)
 }

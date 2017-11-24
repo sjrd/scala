@@ -23,7 +23,20 @@ import scala.collection.mutable
  */
 trait WorklistAlgorithm {
   type Elem
-  type WList = mutable.Stack[Elem]
+  class WList {
+    private[this] var list: List[Elem] = Nil
+    def isEmpty = list.isEmpty
+    def nonEmpty = !isEmpty
+    def push(e: Elem): Unit = { list = e :: list }
+    def pop(): Elem = {
+      val head = list.head
+      list = list.tail
+      head
+    }
+    def pushAll(xs: Iterable[Elem]): Unit = xs.foreach(push)
+    def clear(): Unit = list = Nil
+
+  }
 
   val worklist: WList
 

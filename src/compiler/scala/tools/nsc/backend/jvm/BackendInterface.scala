@@ -689,8 +689,6 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
   // Class symbols used in backend.
   // Vals becouse they are to frequent in scala programs so that they are already loaded by backend
 
-  lazy val RemoteAttr: Symbol = requiredClass[scala.remote]
-  lazy val BeanInfoAttr: Symbol = requiredClass[scala.beans.BeanInfo]
   lazy val NativeAttr: Symbol = requiredClass[scala.native]
   lazy val TransientAttr = requiredClass[scala.transient]
   lazy val VolatileAttr = requiredClass[scala.volatile]

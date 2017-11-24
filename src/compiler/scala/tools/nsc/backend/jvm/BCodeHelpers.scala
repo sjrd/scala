@@ -317,28 +317,11 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
 
   trait BCForwardersGen extends BCAnnotGen with BCJGenSigGen {
 
-    /* Adds a @remote annotation, actual use unknown.
-     *
-     * Invoked from genMethod() and addForwarder().
-     *
-     * must-single-thread
-     */
-    def addRemoteExceptionAnnot(isRemoteClass: Boolean, isJMethodPublic: Boolean, meth: Symbol): Unit = {
-      val needsAnnotation = (
-        (  isRemoteClass ||
-           isRemote(meth) && isJMethodPublic
-        ) && !(meth.throwsAnnotations contains RemoteExceptionClass)
-      )
-      if (needsAnnotation) {
-        meth.addRemoteRemoteExceptionAnnotation
-      }
-    }
-
     /* Add a forwarder for method m. Used only from addForwarders().
      *
      * must-single-thread
      */
-    private def addForwarder(isRemoteClass: Boolean, jclass: asm.ClassVisitor, module: Symbol, m: Symbol): Unit = {
+    private def addForwarder(jclass: asm.ClassVisitor, module: Symbol, m: Symbol): Unit = {
       val moduleName     = internalName(module)
       val methodInfo     = module.thisType.memberInfo(m)
       val paramJavaTypes: List[BType] = methodInfo.paramTypes map toTypeKind
@@ -356,7 +339,6 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
 
       // TODO needed? for(ann <- m.annotations) { ann.symbol.initialize }
       val jgensig = getStaticForwarderGenericSignature(m, module)
-      addRemoteExceptionAnnot(isRemoteClass, hasPublicBitSet(flags), m)
       val (throws, others) = m.annotations partition (_.symbol == ThrowsClass)
       val thrownExceptions: List[String] = getExceptions(throws)
 
@@ -400,14 +382,14 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
      *
      * must-single-thread
      */
-    def addForwarders(isRemoteClass: Boolean, jclass: asm.ClassVisitor, jclassName: String, moduleClass: Symbol): Unit = {
+    def addForwarders(jclass: asm.ClassVisitor, jclassName: String, moduleClass: Symbol): Unit = {
       assert(moduleClass.isModuleClass, moduleClass)
       debuglog(s"Dumping mirror class for object: $moduleClass")
 
       val linkedClass  = moduleClass.companionClass
       lazy val conflictingNames: Set[Name] = {
         // Dotty deviation: needed to add ": Symbol" because of https://github.com/lampepfl/dotty/issues/2143
-        (linkedClass.info.members collect { case sym: Symbol if sym.name.isTermName => sym.name }).toSet
+        (linkedClass.info.members collect { case sym if sym.name.isTermName => sym.name }).toSet
       }
       debuglog(s"Potentially conflicting names for forwarders: $conflictingNames")
 
@@ -420,7 +402,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
           log(s"No forwarder for non-public member $m")
         else {
           log(s"Adding static forwarder for '$m' from $jclassName to '$moduleClass'")
-          addForwarder(isRemoteClass, jclass, moduleClass, m)
+          addForwarder(jclass, moduleClass, m)
         }
       }
     }
@@ -515,7 +497,7 @@ trait BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
       mirrorClass.visitAttribute(if (ssa.isDefined) pickleMarkerLocal else pickleMarkerForeign)
       emitAnnotations(mirrorClass, moduleClass.annotations ++ ssa)
 
-      addForwarders(isRemote(moduleClass), mirrorClass, mirrorName, moduleClass)
+      addForwarders(mirrorClass, mirrorName, moduleClass)
 
       innerClassBufferASM ++= classBTypeFromSymbol(moduleClass).info.memberClasses
       addInnerClassesASM(mirrorClass, innerClassBufferASM.toList)
