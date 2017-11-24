@@ -1405,10 +1405,11 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     def genInvokeDynamicLambda(ctor: Symbol, lambdaTarget: Symbol, environmentSize: Int, functionalInterface: Symbol): BType = {
       debuglog(s"Using invokedynamic rather than `new ${ctor.owner}`")
       val generatedType = classBTypeFromSymbol(functionalInterface)
+      val isInterface = lambdaTarget.owner.isInterface
       val invokeStyle =
         if (lambdaTarget.isStaticMember) asm.Opcodes.H_INVOKESTATIC
         else if (lambdaTarget.isPrivate || lambdaTarget.isClassConstructor) asm.Opcodes.H_INVOKESPECIAL
-        else if (lambdaTarget.owner.isInterface) asm.Opcodes.H_INVOKEINTERFACE
+        else if (isInterface) asm.Opcodes.H_INVOKEINTERFACE
         else asm.Opcodes.H_INVOKEVIRTUAL
 
       val targetHandle =
@@ -1416,7 +1417,7 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
           classBTypeFromSymbol(lambdaTarget.owner).internalName,
           lambdaTarget.name.mangledString,
           asmMethodType(lambdaTarget).descriptor,
-          invokeStyle == asm.Opcodes.H_INVOKEINTERFACE)
+          isInterface)
 
       val (a,b) = lambdaTarget.info.paramTypes.splitAt(environmentSize)
       var (capturedParamsTypes, lambdaParamTypes) = if(int.doLabmdasFollowJVMMetafactoryOrder) (a,b) else (b,a)
@@ -1447,6 +1448,6 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
     new asm.Handle(asm.Opcodes.H_INVOKESTATIC,
       int.LambdaMetaFactory.javaBinaryName, int.MetafactoryName,
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-      false)
+      int.LambdaMetaFactory.isInterface)
 
 }
