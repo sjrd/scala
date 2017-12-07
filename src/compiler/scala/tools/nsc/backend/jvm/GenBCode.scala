@@ -33,13 +33,12 @@ import scala.tools.nsc.backend.jvm.opt.LocalOpt
  *    (2) The second queue contains items where a ClassDef has been lowered into:
  *          (a) an optional mirror class,
  *          (b) a plain class, and
- *          (c) an optional bean class.
  *
  *    (3) The third queue contains items ready for serialization.
  *        It's a priority queue that follows the original arrival order,
  *        so as to emit identical jars on repeated compilation of the same sources.
  *
- *  Plain, mirror, and bean classes are built respectively by PlainClassBuilder, JMirrorBuilder, and JBeanInfoBuilder.
+ *  Plain and mirror classes built respectively by PlainClassBuilder and JMirrorBuilder.
  *
  *  @author  Miguel Garcia, http://lamp.epfl.ch/~magarcia/ScalaCompilerCornerReloaded/
  *  @version 1.0
@@ -49,7 +48,7 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
   val global: Global
   import global._
   val int: ScalacBackendInterface[global.type]
-  import int.{symHelper, BeanInfoAttr}
+  import int.symHelper
 
   import bTypes._
   import coreBTypes._
@@ -70,7 +69,6 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
 
     private var bytecodeWriter  : BytecodeWriter   = null
     private var mirrorCodeGen   : JMirrorBuilder   = null
-    private var beanInfoCodeGen : JBeanInfoBuilder = null
 
     /* ---------------- q1 ---------------- */
 
@@ -85,7 +83,6 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
     case class Item2(arrivalPos:   Int,
                      mirror:       asm.tree.ClassNode,
                      plain:        asm.tree.ClassNode,
-                     bean:         asm.tree.ClassNode,
                      outFolder:    scala.tools.nsc.io.AbstractFile) {
       def isPoison = { arrivalPos == Int.MaxValue }
     }
@@ -96,8 +93,8 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
     /* ---------------- q3 ---------------- */
 
     /*
-     *  An item of queue-3 (the last queue before serializing to disk) contains three of these
-     *  (one for each of mirror, plain, and bean classes).
+     *  An item of queue-3 (the last queue before serializing to disk) contains two of these
+     *  (one for each of mirror and plain classes).
      *
      *  @param jclassName  internal name of the class
      *  @param jclassBytes bytecode emitted for the class SubItem3 represents
@@ -110,7 +107,6 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
     case class Item3(arrivalPos: Int,
                      mirror:     SubItem3,
                      plain:      SubItem3,
-                     bean:       SubItem3,
                      outFolder:  scala.tools.nsc.io.AbstractFile) {
 
       def isPoison  = { arrivalPos == Int.MaxValue }
@@ -152,7 +148,7 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
 
       /*
        *  Checks for duplicate internal names case-insensitively,
-       *  builds ASM ClassNodes for mirror, plain, and bean classes;
+       *  builds ASM ClassNodes for mirror and plain classes;
        *  enqueues them in queue-2.
        *
        */
@@ -190,21 +186,11 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
         val outF = if (needsOutFolder) getOutFolder(claszSymbol, pcb.thisName) else null;
         val plainC = pcb.cnode
 
-        // -------------- bean info class, if needed --------------
-        val beanC =
-          if (claszSymbol hasAnnotation BeanInfoAttr) {
-            beanInfoCodeGen.genBeanInfoClass(
-              claszSymbol, cunit,
-              claszSymbol.fieldSymbols,
-              claszSymbol.methodSymbols
-            )
-          } else null
-
           // ----------- hand over to pipeline-2
 
         val item2 =
           Item2(arrivalPos,
-                mirrorC, plainC, beanC,
+                mirrorC, plainC,
                 outF)
 
         q2 add item2 // at the very end of this method so that no Worker2 thread starts mutating before we're done.
@@ -254,19 +240,17 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
           cw.toByteArray
         }
 
-        val Item2(arrivalPos, mirror, plain, bean, outFolder) = item
+        val Item2(arrivalPos, mirror, plain, outFolder) = item
 
         val mirrorC = if (mirror == null) null else SubItem3(mirror.name, getByteArray(mirror))
         val plainC  = SubItem3(plain.name, getByteArray(plain))
-        val beanC   = if (bean == null)   null else SubItem3(bean.name, getByteArray(bean))
 
         if (AsmUtils.traceSerializedClassEnabled && plain.name.contains(AsmUtils.traceSerializedClassPattern)) {
           if (mirrorC != null) AsmUtils.traceClass(mirrorC.jclassBytes)
           AsmUtils.traceClass(plainC.jclassBytes)
-          if (beanC != null) AsmUtils.traceClass(beanC.jclassBytes)
         }
 
-        q3 add Item3(arrivalPos, mirrorC, plainC, beanC, outFolder)
+        q3 add Item3(arrivalPos, mirrorC, plainC, outFolder)
 
       }
 
@@ -297,7 +281,6 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
       // initBytecodeWriter invokes fullName, thus we have to run it before the typer-dependent thread is activated.
       bytecodeWriter  = initBytecodeWriter(cleanup.getEntryPoints)
       mirrorCodeGen   = new JMirrorBuilder
-      beanInfoCodeGen = new JBeanInfoBuilder
 
       val needsOutfileForSymbol = bytecodeWriter.isInstanceOf[ClassBytecodeWriter]
       buildAndSendToDisk(needsOutfileForSymbol)
@@ -379,7 +362,6 @@ abstract class GenBCode extends SubComponent with BCodeSyncAndTry {
           val outFolder = item.outFolder
           sendToDisk(item.mirror, outFolder)
           sendToDisk(item.plain,  outFolder)
-          sendToDisk(item.bean,   outFolder)
           expected += 1
         }
       }

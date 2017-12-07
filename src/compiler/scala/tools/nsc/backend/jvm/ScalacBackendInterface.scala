@@ -478,7 +478,6 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
     def hasPackageFlag: Boolean = sym.hasPackageFlag
     def isImplClass: Boolean = sym.isImplClass
     def isInterface: Boolean = sym.isInterface
-    def hasGetter: Boolean = sym.hasGetter
     def isGetter: Boolean = sym.isGetter
     def isSetter: Boolean = sym.isSetter
     def isJavaDefined: Boolean = sym.isJavaDefined

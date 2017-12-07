@@ -457,7 +457,6 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def hasPackageFlag: Boolean
     def isImplClass: Boolean
     def isInterface: Boolean
-    def hasGetter: Boolean
     def isGetter: Boolean
     def isSetter: Boolean
     def isGetClass: Boolean
