@@ -457,7 +457,6 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def hasPackageFlag: Boolean
     def isImplClass: Boolean
     def isInterface: Boolean
-    def hasGetter: Boolean
     def isGetter: Boolean
     def isSetter: Boolean
     def isGetClass: Boolean
@@ -558,7 +557,6 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def isOriginallyStaticOwner: Boolean
 
 
-    def addRemoteRemoteExceptionAnnotation: Unit
     def samMethod(): Symbol
   }
 
@@ -710,7 +708,6 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
   val BoxedFloatClass: Symbol = requiredClass[java.lang.Float]
   val BoxedDoubleClass: Symbol = requiredClass[java.lang.Double]
   val StringClass: Symbol = requiredClass[java.lang.String]
-  val StringBuilderClass: Symbol = requiredClass[scala.collection.mutable.StringBuilder]
   val JavaStringBuilderClass: Symbol = requiredClass[java.lang.StringBuilder]
   val JavaStringBufferClass: Symbol = requiredClass[java.lang.StringBuffer]
   val JavaCharSequenceClass: Symbol = requiredClass[java.lang.CharSequence]
@@ -723,7 +720,6 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
 
   val ClassfileAnnotationClass: Symbol = requiredClass[scala.annotation.ClassfileAnnotation]
   val BoxedNumberClass: Symbol = requiredClass[java.lang.Number]
-  val RemoteExceptionClass: Symbol = requiredClass[java.rmi.RemoteException]
   val ThrowsClass: Symbol = requiredClass[scala.throws[_]]
 
   // Module symbols used in backend

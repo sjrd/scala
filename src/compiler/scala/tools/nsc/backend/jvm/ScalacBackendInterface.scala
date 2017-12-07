@@ -478,7 +478,6 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
     def hasPackageFlag: Boolean = sym.hasPackageFlag
     def isImplClass: Boolean = sym.isImplClass
     def isInterface: Boolean = sym.isInterface
-    def hasGetter: Boolean = sym.hasGetter
     def isGetter: Boolean = sym.isGetter
     def isSetter: Boolean = sym.isSetter
     def isJavaDefined: Boolean = sym.isJavaDefined
@@ -555,12 +554,6 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
     })(collection.breakOut)
 
 
-    def addRemoteRemoteExceptionAnnotation: Unit = {
-      val c   = new Constant(RemoteExceptionClass.tpe)
-      val arg = new Literal(c) setType c.tpe
-      sym.addAnnotation(appliedType(definitions.ThrowsClass, c.tpe), arg)
-    }
-
     def linkedClass: Symbol = exitingPickler(sym.linkedClassOfClass) // linkedCoC does not work properly in late phases
     def companionModuleMembers: List[Symbol] = {
       // phase travel to exitingPickler: this makes sure that memberClassesOf only sees member classes,
@@ -574,14 +567,8 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
      *
      */
      def superInterfaces: List[Symbol] =  {
-
-      // Additional interface parents based on annotations and other cues
-      def newParentForAnnotation(ann: AnnotationInfo): Symbol =
-        if (ann.symbol eq RemoteAttr) RemoteInterfaceClass
-        else NoSymbol
-
       val superInterfaces0: List[Symbol] = sym.mixinClasses
-      val superInterfaces = existingSymbols(superInterfaces0 ++ sym.annotations.map(newParentForAnnotation)).distinct
+      val superInterfaces = existingSymbols(superInterfaces0).distinct
 
       assert(!superInterfaces.contains(NoSymbol), s"found NoSymbol among: ${superInterfaces.mkString(", ")}")
       assert(superInterfaces.forall(s => s.isInterface || s.isTrait), s"found non-interface among: ${superInterfaces.mkString(", ")}")
