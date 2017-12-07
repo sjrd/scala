@@ -179,9 +179,6 @@ class BTypesFromSymbols[I <: BackendInterface](val int: I) extends BTypes {
     }
   }
 
-  // legacy, to be removed when the @remote annotation gets removed
-  final def hasPublicBitSet(flags: Int) = ((flags & asm.Opcodes.ACC_PUBLIC) != 0)
-
   /**
    * Return the Java modifiers for the given symbol.
    * Java modifiers for classes:

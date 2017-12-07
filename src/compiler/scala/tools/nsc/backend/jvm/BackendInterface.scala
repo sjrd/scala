@@ -557,7 +557,6 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def isOriginallyStaticOwner: Boolean
 
 
-    def addRemoteRemoteExceptionAnnotation: Unit
     def samMethod(): Symbol
   }
 
@@ -722,7 +721,6 @@ abstract class BackendInterfaceDefinitions { self: BackendInterface =>
 
   val ClassfileAnnotationClass: Symbol = requiredClass[scala.annotation.ClassfileAnnotation]
   val BoxedNumberClass: Symbol = requiredClass[java.lang.Number]
-  val RemoteExceptionClass: Symbol = requiredClass[java.rmi.RemoteException]
   val ThrowsClass: Symbol = requiredClass[scala.throws[_]]
 
   // Module symbols used in backend

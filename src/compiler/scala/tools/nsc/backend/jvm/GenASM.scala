@@ -241,7 +241,6 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
 
   private def mkFlags(args: Int*)         = args.foldLeft(0)(_ | _)
   private def hasPublicBitSet(flags: Int) = (flags & asm.Opcodes.ACC_PUBLIC) != 0
-  private def isRemote(s: Symbol)         = s hasAnnotation RemoteAttr
 
   /**
    * Return the Java modifiers for the given symbol.
@@ -1032,7 +1031,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
      *  a method with the same name is defined both in a class and its companion object:
      *  method signature is not taken into account.
      */
-    def addForwarders(isRemoteClass: Boolean, jclass: asm.ClassVisitor, jclassName: String, moduleClass: Symbol) {
+    def addForwarders(jclass: asm.ClassVisitor, jclassName: String, moduleClass: Symbol) {
       assert(moduleClass.isModuleClass, moduleClass)
       debuglog("Dumping mirror class for object: " + moduleClass)
 
@@ -1051,7 +1050,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
           log(s"No forwarder for non-public member $m")
         else {
           debuglog(s"Adding static forwarder for '$m' from $jclassName to '$moduleClass'")
-          addForwarder(isRemoteClass, jclass, moduleClass, m)
+          addForwarder(jclass, moduleClass, m)
         }
       }
     }
@@ -1190,16 +1189,9 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
     def serialVUID: Option[Long] = clasz.symbol.serialVUID
 
     private def getSuperInterfaces(c: IClass): Array[String] = {
-
-        // Additional interface parents based on annotations and other cues
-        def newParentForAttr(ann: AnnotationInfo): Symbol = ann.symbol match {
-          case RemoteAttr       => RemoteInterfaceClass
-          case _                => NoSymbol
-        }
-
       val ps = c.symbol.info.parents
       val superInterfaces0: List[Symbol] = if(ps.isEmpty) Nil else c.symbol.mixinClasses
-      val superInterfaces = existingSymbols(superInterfaces0 ++ c.symbol.annotations.map(newParentForAttr)).distinct
+      val superInterfaces = existingSymbols(superInterfaces0).distinct
 
       if(superInterfaces.isEmpty) EMPTY_STRING_ARRAY
       else mkArray(erasure.minimizeInterfaces(superInterfaces.map(_.info)).map(t => javaName(t.typeSymbol)))
@@ -1281,7 +1273,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
             }
             if (isCandidateForForwarders) {
               log("Adding static forwarders from '%s' to implementations in '%s'".format(c.symbol, lmoc))
-              addForwarders(isRemote(clasz.symbol), jclass, thisName, lmoc.moduleClass)
+              addForwarders(false, jclass, thisName, lmoc.moduleClass)
             }
           }
         }
@@ -1372,7 +1364,6 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
 
       // TODO needed? for(ann <- m.symbol.annotations) { ann.symbol.initialize }
       val jgensig = getGenericSignature(m.symbol, clasz.symbol)
-      addRemoteExceptionAnnot(isRemote(clasz.symbol), hasPublicBitSet(flags), m.symbol)
       val (excs, others) = m.symbol.annotations partition (_.symbol == ThrowsClass)
       val thrownExceptions: List[String] = getExceptions(excs)
 
@@ -2793,7 +2784,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters { self =>
       // typestate: entering mode with valid call sequences:
       //   ( visitInnerClass | visitField | visitMethod )* visitEnd
 
-      addForwarders(isRemote(modsym), mirrorClass, mirrorName, modsym)
+      addForwarders(false, mirrorClass, mirrorName, modsym)
 
       addInnerClasses(modsym, mirrorClass)
       mirrorClass.visitEnd()
