@@ -445,6 +445,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
     def isType: Boolean
     def isAnonymousClass: Boolean
     def isConstructor: Boolean
+    def isExpanded: Boolean
     def isAnonymousFunction: Boolean
     def isMethod: Boolean
     def isPublic: Boolean

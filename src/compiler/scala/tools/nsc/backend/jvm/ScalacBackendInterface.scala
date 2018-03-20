@@ -466,6 +466,7 @@ class ScalacBackendInterface[G <: Global](val global: G) extends BackendInterfac
     def isType: Boolean = sym.isType
     def isAnonymousClass: Boolean = sym.isAnonymousClass
     def isConstructor: Boolean = sym.isConstructor
+    def isExpanded: Boolean = sym.hasFlag(Flags.EXPANDEDNAME)
     def isAnonymousFunction: Boolean = sym.isAnonymousFunction
     def isMethod: Boolean = sym.isMethod
     def isPublic: Boolean = sym.isPublic
