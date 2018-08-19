@@ -298,6 +298,9 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
         case t @ If(_, _, _) =>
           generatedType = genLoadIf(t, expectedType)
 
+        case t @ Labeled(_, _) =>
+          generatedType = genLabeled(t)
+
         case r @ Return(_) =>
           genReturn(r)
           generatedType = expectedType
@@ -537,35 +540,60 @@ trait BCodeBodyBuilder extends BCodeSkelBuilder {
       else assert(!int.shouldEmitJumpAfterLabels) // scalac
     }
 
-    private def genReturn(r: Return) = r match{
-      case Return(expr) =>
-      val returnedKind = tpeTK(expr)
-      genLoad(expr, returnedKind)
-      adapt(returnedKind, returnType)
-      val saveReturnValue = (returnType != UNIT)
-      lineNumber(r)
+    private def genLabeled(tree: Labeled): BType = tree match {
+      case Labeled(bind, expr) =>
 
-      cleanups match {
-        case Nil =>
-          // not an assertion: !shouldEmitCleanup (at least not yet, pendingCleanups() may still have to run, and reset `shouldEmitCleanup`.
-          bc emitRETURN returnType
-        case nextCleanup :: rest =>
-          if (saveReturnValue) {
-            if (insideCleanupBlock) {
-              int.warning(r.pos, "Return statement found in finally-clause, discarding its return-value in favor of that of a more deeply nested return.")
-              bc drop returnType
-            } else {
-              // regarding return value, the protocol is: in place of a `return-stmt`, a sequence of `adapt, store, jump` are inserted.
-              if (earlyReturnVar == null) {
-                earlyReturnVar = locals.makeLocal(returnType, "earlyReturnVar", expr.tpe, expr.pos)
+      val resKind = tpeTK(tree)
+      genLoad(expr, resKind)
+      markProgramPoint(programPoint(bind.symbol))
+      resKind
+    }
+
+    private def genReturn(r: Return): Unit = r match {
+      case Return(expr, fromSym) =>
+
+      if (NoSymbol == fromSym) {
+        // return from enclosing method
+        val returnedKind = tpeTK(expr)
+        genLoad(expr, returnedKind)
+        adapt(returnedKind, returnType)
+        val saveReturnValue = (returnType != UNIT)
+        lineNumber(r)
+
+        cleanups match {
+          case Nil =>
+            // not an assertion: !shouldEmitCleanup (at least not yet, pendingCleanups() may still have to run, and reset `shouldEmitCleanup`.
+            bc emitRETURN returnType
+          case nextCleanup :: rest =>
+            if (saveReturnValue) {
+              if (insideCleanupBlock) {
+                int.warning(r.pos, "Return statement found in finally-clause, discarding its return-value in favor of that of a more deeply nested return.")
+                bc drop returnType
+              } else {
+                // regarding return value, the protocol is: in place of a `return-stmt`, a sequence of `adapt, store, jump` are inserted.
+                if (earlyReturnVar == null) {
+                  earlyReturnVar = locals.makeLocal(returnType, "earlyReturnVar", expr.tpe, expr.pos)
+                }
+                locals.store(earlyReturnVar)
               }
-              locals.store(earlyReturnVar)
             }
-          }
-          bc goTo nextCleanup
-          shouldEmitCleanup = true
-      }
+            bc goTo nextCleanup
+            shouldEmitCleanup = true
+        }
+      } else {
+        // return from labeled
+        assert(fromSym.isLabel, fromSym)
+        assert(!fromSym.isMethod, fromSym)
 
+        /* TODO At the moment, we disregard cleanups, because by construction we don't have return-from-labels
+         * that cross cleanup boundaries. However, in theory such crossings are valid, so we should take care
+         * of them.
+         */
+        val resultKind = toTypeKind(fromSym.info)
+        genLoad(expr, resultKind)
+        lineNumber(r)
+        bc goTo programPoint(fromSym)
+      }
     } // end of genReturn()
 
     def genTypeApply(t: TypeApply): BType = t match {

@@ -31,6 +31,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   type LabelDef   >: Null <: Tree
   type ValDef     >: Null <: Tree
   type Throw      >: Null <: Tree
+  type Labeled    >: Null <: Tree
   type Return     >: Null <: Tree
   type Literal    >: Null <: Tree
   type Block      >: Null <: Tree
@@ -66,6 +67,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   implicit val LabelDefTag: ClassTag[LabelDef]
   implicit val ValDefTag: ClassTag[ValDef]
   implicit val ThrowTag: ClassTag[Throw]
+  implicit val LabeledTag: ClassTag[Labeled]
   implicit val ReturnTag: ClassTag[Return]
   implicit val LiteralTag: ClassTag[Literal]
   implicit val BlockTag: ClassTag[Block]
@@ -201,6 +203,7 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   val This: ThisDeconstructor
   val Ident: IdentDeconstructor
   val Try: TryDeconstructor
+  val Labeled: LabeledDeconstructor
   val Return: ReturnDeconstructor
   val LabelDef: LabelDeconstructor
   val Literal: LiteralDeconstructor
@@ -289,7 +292,14 @@ abstract class BackendInterface extends BackendInterfaceDefinitions {
   abstract class IdentDeconstructor extends Deconstructor1Common[Ident, Name]{
   }
 
-  abstract class ReturnDeconstructor extends Deconstructor1Common[Return, Tree]{
+  abstract class LabeledDeconstructor extends DeconstructorCommon[Labeled]{
+    def _1: Bind // bind
+    def _2: Tree // expr
+  }
+
+  abstract class ReturnDeconstructor extends DeconstructorCommon[Return]{
+    def _1: Tree // expr
+    def _2: Symbol // target label, NoSymbol if return to method
   }
 
   abstract class ThrownException {
