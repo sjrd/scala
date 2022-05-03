@@ -164,7 +164,7 @@ trait MatchCodeGen extends Interface {
         val matchRes = NoSymbol.newValueParameter(newTermName("x"), NoPosition, newFlags = SYNTHETIC) setInfo restpe.withoutAnnotations
         val matchEnd = newSynthCaseLabel("matchEnd") setInfo MethodType(List(matchRes), restpe)
 
-        def newCaseSym = newSynthCaseLabel("case") setInfo MethodType(Nil, restpe)
+        def newCaseSym = newSynthCaseLabel("case") setInfo MethodType(Nil, UnitTpe)
         var _currCase = newCaseSym
 
         val caseDefs = cases map { (mkCase: Casegen => Tree) =>
@@ -204,7 +204,7 @@ trait MatchCodeGen extends Interface {
         // res: T
         // returns MatchMonad[T]
         def one(res: Tree): Tree = matchEnd APPLY (res) // a jump to a case label is special-cased in typedApply
-        protected def zero: Tree = nextCase APPLY ()
+        protected def zero: Tree = EmptyTree //nextCase APPLY ()
 
         // prev: MatchMonad[T]
         // b: T

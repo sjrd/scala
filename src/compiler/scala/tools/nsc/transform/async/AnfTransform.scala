@@ -250,7 +250,7 @@ private[async] trait AnfTransform extends TransformUtils {
     // as though it was typed with `Unit`.
     private def isPatMatGeneratedJump(t: Tree): Boolean = t match {
       case Block(_, expr) => isPatMatGeneratedJump(expr)
-      case If(_, thenp, elsep) => isPatMatGeneratedJump(thenp) && isPatMatGeneratedJump(elsep)
+      case If(_, thenp, elsep) => isPatMatGeneratedJump(thenp) && (elsep.isEmpty || isPatMatGeneratedJump(elsep))
       case _: Apply if isLabel(t.symbol) => true
       case _ => false
     }

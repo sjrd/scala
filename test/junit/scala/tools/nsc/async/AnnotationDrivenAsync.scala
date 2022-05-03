@@ -198,6 +198,29 @@ class AnnotationDrivenAsync {
   }
 
   @Test
+  def testIfWithoutElse(): Unit = {
+    val code = """
+      |import scala.tools.nsc.async.{autoawait, customAsync}
+      |
+      |object Test extends App {
+      |  @customAsync
+      |  def test: Any = {
+      |    @autoawait def id[A](a: A) = a
+      |
+      |    var x: String = "nope"
+      |    if (id("".length) == 0) {
+      |      x = id("okay")
+      |    }
+      |
+      |    x
+      |  }
+      |}
+      |
+      |""".stripMargin
+    assertEquals("okay", run(code))
+  }
+
+  @Test
   def testGuard(): Unit = {
     val code = """
       |import scala.tools.nsc.async.{autoawait, customAsync}
